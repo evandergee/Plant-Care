@@ -5,55 +5,83 @@ import SwiftData
 // Each "enum" below is a fixed list of choices, like a lookup table in SQL.
 // CaseIterable lets a picker loop through every choice automatically.
 
+// Each choice has two parts:
+//   - a short, stable KEY (the enum case name), which is what gets saved to the database
+//   - a friendly LABEL, which is only for display
+// Keeping them separate means you can reword a label later without breaking saved data,
+// the same reason you'd join on an ID in SQL instead of on a display name.
+
 enum LightLevel: String, CaseIterable, Identifiable, Codable {
-    case low = "Low light"
-    case medium = "Medium / indirect"
-    case brightIndirect = "Bright indirect"
-    case fullSun = "Full sun / direct"
+    case low, medium, brightIndirect, fullSun
     var id: String { rawValue }
+    var label: String {
+        switch self {
+        case .low: "Low light"
+        case .medium: "Medium / indirect"
+        case .brightIndirect: "Bright indirect"
+        case .fullSun: "Full sun / direct"
+        }
+    }
 }
 
 enum Room: String, CaseIterable, Identifiable, Codable {
-    case livingRoom = "Living room"
-    case bedroom = "Bedroom"
-    case kitchen = "Kitchen"
-    case bathroom = "Bathroom"
-    case office = "Office"
-    case diningRoom = "Dining room"
-    case hallway = "Hallway / entry"
-    case balcony = "Balcony / patio"
-    case outdoorGarden = "Outdoor garden"
-    case growTent = "Greenhouse / grow tent"
-    case other = "Other"
+    case livingRoom, bedroom, kitchen, bathroom, office, diningRoom
+    case hallway, balcony, outdoorGarden, growTent, other
     var id: String { rawValue }
+    var label: String {
+        switch self {
+        case .livingRoom: "Living room"
+        case .bedroom: "Bedroom"
+        case .kitchen: "Kitchen"
+        case .bathroom: "Bathroom"
+        case .office: "Office"
+        case .diningRoom: "Dining room"
+        case .hallway: "Hallway / entry"
+        case .balcony: "Balcony / patio"
+        case .outdoorGarden: "Outdoor garden"
+        case .growTent: "Greenhouse / grow tent"
+        case .other: "Other"
+        }
+    }
 }
 
 enum PotType: String, CaseIterable, Identifiable, Codable {
-    case plastic = "Plastic nursery pot"
-    case terracotta = "Terracotta"
-    case ceramic = "Glazed ceramic"
-    case selfWatering = "Self-watering"
-    case hanging = "Hanging basket"
-    case fabric = "Fabric grow bag"
-    case glass = "Glass / terrarium"
-    case mounted = "Mounted / no pot"
-    case other = "Other"
+    case plastic, terracotta, ceramic, selfWatering, hanging, fabric, glass, mounted, other
     var id: String { rawValue }
+    var label: String {
+        switch self {
+        case .plastic: "Plastic nursery pot"
+        case .terracotta: "Terracotta"
+        case .ceramic: "Glazed ceramic"
+        case .selfWatering: "Self-watering"
+        case .hanging: "Hanging basket"
+        case .fabric: "Fabric grow bag"
+        case .glass: "Glass / terrarium"
+        case .mounted: "Mounted / no pot"
+        case .other: "Other"
+        }
+    }
 }
 
 enum SoilType: String, CaseIterable, Identifiable, Codable {
-    case standard = "Standard potting mix"
-    case cactus = "Cactus / succulent mix"
-    case aroid = "Chunky aroid mix"
-    case orchidBark = "Orchid bark"
-    case peatMoss = "Peat / sphagnum moss"
-    case semiHydro = "LECA / semi-hydro"
-    case water = "Water (propagation)"
-    case gardenSoil = "Garden soil"
-    case other = "Other"
+    case standard, cactus, aroid, orchidBark, peatMoss, semiHydro, water, gardenSoil, other
     var id: String { rawValue }
+    var label: String {
+        switch self {
+        case .standard: "Standard potting mix"
+        case .cactus: "Cactus / succulent mix"
+        case .aroid: "Chunky aroid mix"
+        case .orchidBark: "Orchid bark"
+        case .peatMoss: "Peat / sphagnum moss"
+        case .semiHydro: "LECA / semi-hydro"
+        case .water: "Water (propagation)"
+        case .gardenSoil: "Garden soil"
+        case .other: "Other"
+        }
+    }
 }
 
+// Plant groups are never saved (they come from the catalog), so display text is fine here.
 enum PlantCategory: String, CaseIterable, Identifiable {
     case tropical = "Tropical & Foliage"
     case easyCare = "Low-Maintenance"
@@ -198,18 +226,21 @@ final class Plant {
         return speciesName.isEmpty ? "Unnamed plant" : speciesName
     }
 
+    // Watering is tracked by calendar DAY, not exact time: a plant watered at 3pm
+    // on a 7-day schedule is due all day one week later, not just after 3pm.
     var nextWatering: Date {
-        Calendar.current.date(byAdding: .day, value: waterEveryDays, to: lastWatered)!
+        let wateredDay = Calendar.current.startOfDay(for: lastWatered)
+        return Calendar.current.date(byAdding: .day, value: waterEveryDays, to: wateredDay) ?? wateredDay
     }
 
     var needsWater: Bool {
-        nextWatering <= Date()
+        nextWatering <= Calendar.current.startOfDay(for: Date())
     }
 }
 
 // Sample plants, added only the very first time the app opens.
 func daysAgo(_ n: Int) -> Date {
-    Calendar.current.date(byAdding: .day, value: -n, to: Date())!
+    Calendar.current.date(byAdding: .day, value: -n, to: Date()) ?? Date()
 }
 
 func makeSamplePlants() -> [Plant] {

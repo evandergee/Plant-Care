@@ -1,26 +1,46 @@
 import SwiftUI
 
-// STEP 2: The "Add Plant" form.
+// The plant form, used for BOTH adding a new plant and editing an existing one.
 // It opens as a sheet (a card that slides up) from the main list.
 
 struct AddPlantView: View {
-    // "onSave" is a function the main screen gives us, so we can hand the new plant back.
+    // If a plant is passed in, we're editing it (an UPDATE). If not, we're adding a new one (an INSERT).
+    var plant: Plant?
+    // "onSave" is a function the main screen gives us, so we can hand a NEW plant back.
     var onSave: (Plant) -> Void
     @Environment(\.dismiss) private var dismiss
 
     // One @State variable per form field.
-    @State private var nickname = ""
-    @State private var speciesName = ""
-    @State private var waterEveryDays = 7
-    @State private var lastWatered = Date()
-    @State private var light: LightLevel = .medium
-    @State private var room: Room = .livingRoom
-    @State private var potType: PotType = .plastic
-    @State private var hasDrainage = true
-    @State private var soil: SoilType = .standard
-    @State private var fertilizes = false
-    @State private var fertilizeEveryWeeks = 4
-    @State private var notes = ""
+    @State private var nickname: String
+    @State private var speciesName: String
+    @State private var waterEveryDays: Int
+    @State private var lastWatered: Date
+    @State private var light: LightLevel
+    @State private var room: Room
+    @State private var potType: PotType
+    @State private var hasDrainage: Bool
+    @State private var soil: SoilType
+    @State private var fertilizes: Bool
+    @State private var fertilizeEveryWeeks: Int
+    @State private var notes: String
+
+    // Fill the form from the plant being edited, or with defaults for a new one.
+    init(plant: Plant? = nil, onSave: @escaping (Plant) -> Void = { _ in }) {
+        self.plant = plant
+        self.onSave = onSave
+        _nickname = State(initialValue: plant?.nickname ?? "")
+        _speciesName = State(initialValue: plant?.speciesName ?? "")
+        _waterEveryDays = State(initialValue: plant?.waterEveryDays ?? 7)
+        _lastWatered = State(initialValue: plant?.lastWatered ?? Date())
+        _light = State(initialValue: plant?.light ?? .medium)
+        _room = State(initialValue: plant?.room ?? .livingRoom)
+        _potType = State(initialValue: plant?.potType ?? .plastic)
+        _hasDrainage = State(initialValue: plant?.hasDrainage ?? true)
+        _soil = State(initialValue: plant?.soil ?? .standard)
+        _fertilizes = State(initialValue: plant?.fertilizes ?? false)
+        _fertilizeEveryWeeks = State(initialValue: plant?.fertilizeEveryWeeks ?? 4)
+        _notes = State(initialValue: plant?.notes ?? "")
+    }
 
     // The catalog entry that matches the chosen species, if any.
     private var selectedSpecies: Species? {
@@ -69,20 +89,20 @@ struct AddPlantView: View {
 
                 Section("Environment") {
                     Picker("Light", selection: $light) {
-                        ForEach(LightLevel.allCases) { Text($0.rawValue).tag($0) }
+                        ForEach(LightLevel.allCases) { Text($0.label).tag($0) }
                     }
                     Picker("Room", selection: $room) {
-                        ForEach(Room.allCases) { Text($0.rawValue).tag($0) }
+                        ForEach(Room.allCases) { Text($0.label).tag($0) }
                     }
                 }
 
                 Section("Pot & Soil") {
                     Picker("Pot", selection: $potType) {
-                        ForEach(PotType.allCases) { Text($0.rawValue).tag($0) }
+                        ForEach(PotType.allCases) { Text($0.label).tag($0) }
                     }
                     Toggle("Has drainage hole", isOn: $hasDrainage)
                     Picker("Soil", selection: $soil) {
-                        ForEach(SoilType.allCases) { Text($0.rawValue).tag($0) }
+                        ForEach(SoilType.allCases) { Text($0.label).tag($0) }
                     }
                 }
 
@@ -99,7 +119,9 @@ struct AddPlantView: View {
                         .lineLimit(3...6)
                 }
             }
-            .navigationTitle("Add Plant")
+            .scrollContentBackground(.hidden)   // STEP 3: green garden background
+            .background(GardenBackground())
+            .navigationTitle(plant == nil ? "Add Plant" : "Edit Plant")
             // When you pick a species, pre-fill its typical watering and light.
             .onChange(of: speciesName) { _, _ in
                 if let s = selectedSpecies {
@@ -115,21 +137,7 @@ struct AddPlantView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        let plant = Plant(
-                            nickname: nickname.trimmingCharacters(in: .whitespaces),
-                            speciesName: speciesName,
-                            waterEveryDays: waterEveryDays,
-                            lastWatered: lastWatered,
-                            light: light,
-                            room: room,
-                            potType: potType,
-                            hasDrainage: hasDrainage,
-                            soil: soil,
-                            fertilizes: fertilizes,
-                            fertilizeEveryWeeks: fertilizeEveryWeeks,
-                            notes: notes
-                        )
-                        onSave(plant)
+                        save()
                         dismiss()
                     }
                     .disabled(!canSave)
@@ -137,8 +145,43 @@ struct AddPlantView: View {
             }
         }
     }
+
+    private func save() {
+        let cleanNickname = nickname.trimmingCharacters(in: .whitespaces)
+        if let plant {
+            // Editing: update the existing row. SwiftData saves the changes automatically.
+            plant.nickname = cleanNickname
+            plant.speciesName = speciesName
+            plant.waterEveryDays = waterEveryDays
+            plant.lastWatered = lastWatered
+            plant.light = light
+            plant.room = room
+            plant.potType = potType
+            plant.hasDrainage = hasDrainage
+            plant.soil = soil
+            plant.fertilizes = fertilizes
+            plant.fertilizeEveryWeeks = fertilizeEveryWeeks
+            plant.notes = notes
+        } else {
+            // Adding: build a new plant and hand it back to the list to insert.
+            onSave(Plant(
+                nickname: cleanNickname,
+                speciesName: speciesName,
+                waterEveryDays: waterEveryDays,
+                lastWatered: lastWatered,
+                light: light,
+                room: room,
+                potType: potType,
+                hasDrainage: hasDrainage,
+                soil: soil,
+                fertilizes: fertilizes,
+                fertilizeEveryWeeks: fertilizeEveryWeeks,
+                notes: notes
+            ))
+        }
+    }
 }
 
 #Preview {
-    AddPlantView { _ in }
+    AddPlantView()
 }

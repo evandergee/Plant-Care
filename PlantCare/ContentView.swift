@@ -12,6 +12,7 @@ struct ContentView: View {
     @Environment(\.modelContext) private var context   // used to INSERT and DELETE
     @AppStorage("didAddSamples") private var didAddSamples = false
     @State private var showingAddPlant = false
+    @State private var editingPlant: Plant?          // the plant whose edit form is open
 
     // How many plants are thirsty right now (like COUNT(*) WHERE needs_water).
     private var thirstyCount: Int {
@@ -41,6 +42,8 @@ struct ContentView: View {
                 Section {
                     ForEach(plants) { plant in
                         PlantRow(plant: plant)
+                            .contentShape(Rectangle())
+                            .onTapGesture { editingPlant = plant }   // tap a row to edit it
                             .listRowBackground(
                                 RoundedRectangle(cornerRadius: 14)
                                     .fill(.background.opacity(0.85))
@@ -79,6 +82,9 @@ struct ContentView: View {
                     context.insert(newPlant)   // INSERT INTO plants ...
                 }
             }
+            .sheet(item: $editingPlant) { plant in
+                AddPlantView(plant: plant)   // same form, filled in with this plant
+            }
             // First launch only: add the sample plants so the list isn't empty.
             .onAppear {
                 if !didAddSamples {
@@ -107,7 +113,7 @@ struct PlantRow: View {
                 Text(plant.displayName)
                     .font(.headline)
 
-                Text([plant.nickname.isEmpty ? "" : plant.speciesName, plant.room.rawValue]
+                Text([plant.nickname.isEmpty ? "" : plant.speciesName, plant.room.label]
                         .filter { !$0.isEmpty }
                         .joined(separator: " · "))
                     .font(.caption)

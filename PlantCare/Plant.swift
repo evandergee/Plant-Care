@@ -1,0 +1,227 @@
+import Foundation
+import SwiftData
+
+// STEP 2: The data model.
+// Each "enum" below is a fixed list of choices, like a lookup table in SQL.
+// CaseIterable lets a picker loop through every choice automatically.
+
+enum LightLevel: String, CaseIterable, Identifiable, Codable {
+    case low = "Low light"
+    case medium = "Medium / indirect"
+    case brightIndirect = "Bright indirect"
+    case fullSun = "Full sun / direct"
+    var id: String { rawValue }
+}
+
+enum Room: String, CaseIterable, Identifiable, Codable {
+    case livingRoom = "Living room"
+    case bedroom = "Bedroom"
+    case kitchen = "Kitchen"
+    case bathroom = "Bathroom"
+    case office = "Office"
+    case diningRoom = "Dining room"
+    case hallway = "Hallway / entry"
+    case balcony = "Balcony / patio"
+    case outdoorGarden = "Outdoor garden"
+    case growTent = "Greenhouse / grow tent"
+    case other = "Other"
+    var id: String { rawValue }
+}
+
+enum PotType: String, CaseIterable, Identifiable, Codable {
+    case plastic = "Plastic nursery pot"
+    case terracotta = "Terracotta"
+    case ceramic = "Glazed ceramic"
+    case selfWatering = "Self-watering"
+    case hanging = "Hanging basket"
+    case fabric = "Fabric grow bag"
+    case glass = "Glass / terrarium"
+    case mounted = "Mounted / no pot"
+    case other = "Other"
+    var id: String { rawValue }
+}
+
+enum SoilType: String, CaseIterable, Identifiable, Codable {
+    case standard = "Standard potting mix"
+    case cactus = "Cactus / succulent mix"
+    case aroid = "Chunky aroid mix"
+    case orchidBark = "Orchid bark"
+    case peatMoss = "Peat / sphagnum moss"
+    case semiHydro = "LECA / semi-hydro"
+    case water = "Water (propagation)"
+    case gardenSoil = "Garden soil"
+    case other = "Other"
+    var id: String { rawValue }
+}
+
+enum PlantCategory: String, CaseIterable, Identifiable {
+    case tropical = "Tropical & Foliage"
+    case easyCare = "Low-Maintenance"
+    case succulent = "Succulents & Cacti"
+    case flowering = "Flowering"
+    case herb = "Herbs & Edibles"
+    case carnivorous = "Carnivorous"
+    case airPlant = "Air Plants"
+    var id: String { rawValue }
+}
+
+// One entry in the built-in plant catalog, with sensible care defaults.
+struct Species: Identifiable, Hashable {
+    let name: String
+    let category: PlantCategory
+    let waterEveryDays: Int
+    let light: LightLevel
+    var id: String { name }
+}
+
+// The catalog: picking a plant here pre-fills its watering schedule and light.
+// These are typical starting points; you can always adjust them in the form.
+let speciesCatalog: [Species] = [
+    // Tropical & Foliage
+    Species(name: "Monstera deliciosa", category: .tropical, waterEveryDays: 7, light: .brightIndirect),
+    Species(name: "Golden Pothos", category: .tropical, waterEveryDays: 7, light: .medium),
+    Species(name: "Heartleaf Philodendron", category: .tropical, waterEveryDays: 7, light: .medium),
+    Species(name: "Philodendron Birkin", category: .tropical, waterEveryDays: 7, light: .brightIndirect),
+    Species(name: "Fiddle Leaf Fig", category: .tropical, waterEveryDays: 7, light: .brightIndirect),
+    Species(name: "Rubber Plant", category: .tropical, waterEveryDays: 10, light: .brightIndirect),
+    Species(name: "Bird of Paradise", category: .tropical, waterEveryDays: 7, light: .brightIndirect),
+    Species(name: "Alocasia", category: .tropical, waterEveryDays: 5, light: .brightIndirect),
+    Species(name: "Calathea", category: .tropical, waterEveryDays: 5, light: .medium),
+    Species(name: "Prayer Plant (Maranta)", category: .tropical, waterEveryDays: 5, light: .medium),
+    Species(name: "Anthurium", category: .tropical, waterEveryDays: 7, light: .brightIndirect),
+    Species(name: "Croton", category: .tropical, waterEveryDays: 5, light: .brightIndirect),
+    Species(name: "Dieffenbachia", category: .tropical, waterEveryDays: 7, light: .medium),
+    Species(name: "Arrowhead Plant (Syngonium)", category: .tropical, waterEveryDays: 7, light: .medium),
+    Species(name: "Hoya", category: .tropical, waterEveryDays: 10, light: .brightIndirect),
+    Species(name: "Spider Plant", category: .tropical, waterEveryDays: 7, light: .medium),
+    Species(name: "Dracaena", category: .tropical, waterEveryDays: 10, light: .medium),
+    Species(name: "Money Tree", category: .tropical, waterEveryDays: 10, light: .brightIndirect),
+    Species(name: "Umbrella Plant (Schefflera)", category: .tropical, waterEveryDays: 10, light: .brightIndirect),
+    Species(name: "Parlor Palm", category: .tropical, waterEveryDays: 7, light: .low),
+    Species(name: "Areca Palm", category: .tropical, waterEveryDays: 7, light: .brightIndirect),
+    Species(name: "English Ivy", category: .tropical, waterEveryDays: 7, light: .medium),
+    Species(name: "Boston Fern", category: .tropical, waterEveryDays: 3, light: .medium),
+    Species(name: "Bird's Nest Fern", category: .tropical, waterEveryDays: 5, light: .medium),
+    Species(name: "Maidenhair Fern", category: .tropical, waterEveryDays: 3, light: .medium),
+
+    // Low-Maintenance
+    Species(name: "Snake Plant", category: .easyCare, waterEveryDays: 14, light: .low),
+    Species(name: "ZZ Plant", category: .easyCare, waterEveryDays: 14, light: .low),
+    Species(name: "Cast Iron Plant", category: .easyCare, waterEveryDays: 10, light: .low),
+    Species(name: "Chinese Evergreen", category: .easyCare, waterEveryDays: 10, light: .low),
+    Species(name: "Ponytail Palm", category: .easyCare, waterEveryDays: 14, light: .brightIndirect),
+
+    // Succulents & Cacti
+    Species(name: "Echeveria", category: .succulent, waterEveryDays: 10, light: .fullSun),
+    Species(name: "Jade Plant", category: .succulent, waterEveryDays: 14, light: .fullSun),
+    Species(name: "Aloe Vera", category: .succulent, waterEveryDays: 14, light: .fullSun),
+    Species(name: "Haworthia", category: .succulent, waterEveryDays: 14, light: .brightIndirect),
+    Species(name: "Sempervivum (Hens & Chicks)", category: .succulent, waterEveryDays: 14, light: .fullSun),
+    Species(name: "Kalanchoe", category: .succulent, waterEveryDays: 10, light: .brightIndirect),
+    Species(name: "String of Pearls", category: .succulent, waterEveryDays: 14, light: .brightIndirect),
+    Species(name: "Burro's Tail", category: .succulent, waterEveryDays: 14, light: .fullSun),
+    Species(name: "Lithops", category: .succulent, waterEveryDays: 30, light: .fullSun),
+    Species(name: "Christmas Cactus", category: .succulent, waterEveryDays: 10, light: .brightIndirect),
+    Species(name: "Barrel Cactus", category: .succulent, waterEveryDays: 21, light: .fullSun),
+    Species(name: "Bunny Ears Cactus", category: .succulent, waterEveryDays: 21, light: .fullSun),
+
+    // Flowering
+    Species(name: "Orchid (Phalaenopsis)", category: .flowering, waterEveryDays: 7, light: .brightIndirect),
+    Species(name: "Peace Lily", category: .flowering, waterEveryDays: 5, light: .low),
+    Species(name: "African Violet", category: .flowering, waterEveryDays: 5, light: .brightIndirect),
+    Species(name: "Bromeliad", category: .flowering, waterEveryDays: 7, light: .brightIndirect),
+    Species(name: "Begonia", category: .flowering, waterEveryDays: 5, light: .brightIndirect),
+    Species(name: "Gardenia", category: .flowering, waterEveryDays: 5, light: .brightIndirect),
+    Species(name: "Hibiscus", category: .flowering, waterEveryDays: 3, light: .fullSun),
+
+    // Herbs & Edibles
+    Species(name: "Basil", category: .herb, waterEveryDays: 2, light: .fullSun),
+    Species(name: "Mint", category: .herb, waterEveryDays: 2, light: .brightIndirect),
+    Species(name: "Parsley", category: .herb, waterEveryDays: 3, light: .fullSun),
+    Species(name: "Cilantro", category: .herb, waterEveryDays: 3, light: .fullSun),
+    Species(name: "Chives", category: .herb, waterEveryDays: 3, light: .fullSun),
+    Species(name: "Rosemary", category: .herb, waterEveryDays: 7, light: .fullSun),
+    Species(name: "Thyme", category: .herb, waterEveryDays: 7, light: .fullSun),
+    Species(name: "Tomato", category: .herb, waterEveryDays: 2, light: .fullSun),
+    Species(name: "Pepper", category: .herb, waterEveryDays: 3, light: .fullSun),
+    Species(name: "Meyer Lemon Tree", category: .herb, waterEveryDays: 7, light: .fullSun),
+
+    // Carnivorous
+    Species(name: "Venus Flytrap", category: .carnivorous, waterEveryDays: 2, light: .fullSun),
+    Species(name: "Pitcher Plant", category: .carnivorous, waterEveryDays: 2, light: .fullSun),
+    Species(name: "Sundew", category: .carnivorous, waterEveryDays: 2, light: .fullSun),
+
+    // Air Plants
+    Species(name: "Air Plant (Tillandsia)", category: .airPlant, waterEveryDays: 7, light: .brightIndirect),
+]
+
+// STEP 4: Plant is now a SwiftData "@Model", which means it's saved in an on-device
+// database. Think of this class as a CREATE TABLE plants (...) statement:
+// each property is a column, and each Plant you add is a row.
+@Model
+final class Plant {
+    var nickname: String
+    var speciesName: String            // "" means "Other / not listed"
+    var waterEveryDays: Int
+    var lastWatered: Date
+    var light: LightLevel
+    var room: Room
+    var potType: PotType
+    var hasDrainage: Bool
+    var soil: SoilType
+    var fertilizes: Bool
+    var fertilizeEveryWeeks: Int
+    var notes: String
+    var dateAdded: Date                // used to keep the list in a stable order
+
+    init(nickname: String, speciesName: String, waterEveryDays: Int, lastWatered: Date,
+         light: LightLevel, room: Room, potType: PotType, hasDrainage: Bool,
+         soil: SoilType, fertilizes: Bool, fertilizeEveryWeeks: Int, notes: String) {
+        self.nickname = nickname
+        self.speciesName = speciesName
+        self.waterEveryDays = waterEveryDays
+        self.lastWatered = lastWatered
+        self.light = light
+        self.room = room
+        self.potType = potType
+        self.hasDrainage = hasDrainage
+        self.soil = soil
+        self.fertilizes = fertilizes
+        self.fertilizeEveryWeeks = fertilizeEveryWeeks
+        self.notes = notes
+        self.dateAdded = Date()
+    }
+
+    // Computed values are NOT saved; they're worked out from the saved columns.
+    var displayName: String {
+        if !nickname.isEmpty { return nickname }
+        return speciesName.isEmpty ? "Unnamed plant" : speciesName
+    }
+
+    var nextWatering: Date {
+        Calendar.current.date(byAdding: .day, value: waterEveryDays, to: lastWatered)!
+    }
+
+    var needsWater: Bool {
+        nextWatering <= Date()
+    }
+}
+
+// Sample plants, added only the very first time the app opens.
+func daysAgo(_ n: Int) -> Date {
+    Calendar.current.date(byAdding: .day, value: -n, to: Date())!
+}
+
+func makeSamplePlants() -> [Plant] {
+    [
+        Plant(nickname: "Monty", speciesName: "Monstera deliciosa", waterEveryDays: 7, lastWatered: daysAgo(8),
+              light: .brightIndirect, room: .livingRoom, potType: .plastic, hasDrainage: true,
+              soil: .aroid, fertilizes: true, fertilizeEveryWeeks: 4, notes: ""),
+        Plant(nickname: "", speciesName: "Snake Plant", waterEveryDays: 14, lastWatered: daysAgo(3),
+              light: .low, room: .bedroom, potType: .ceramic, hasDrainage: true,
+              soil: .cactus, fertilizes: false, fertilizeEveryWeeks: 8, notes: ""),
+        Plant(nickname: "", speciesName: "Echeveria", waterEveryDays: 10, lastWatered: daysAgo(12),
+              light: .fullSun, room: .kitchen, potType: .terracotta, hasDrainage: true,
+              soil: .cactus, fertilizes: false, fertilizeEveryWeeks: 8, notes: "South window"),
+    ]
+}

@@ -1,4 +1,4 @@
-# PlantCare 🌱
+# Project Gaia 🌱
 
 A simple iPhone app for tracking houseplants and when they need water. Built with SwiftUI and SwiftData.
 
@@ -40,3 +40,7 @@ Open `PlantCare.xcodeproj` in Xcode (iOS 27 SDK), choose an iPhone simulator, an
 - Watering reminders with notifications
 - Fertilizing tracker
 - Plant photos
+
+## License
+
+Copyright (c) 2026 Evan Gilb. All rights reserved. See [LICENSE](LICENSE). The code is public so it can be viewed, but it may not be copied, reused, or redistributed without permission.

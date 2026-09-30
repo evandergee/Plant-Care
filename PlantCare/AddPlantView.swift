@@ -47,6 +47,17 @@ struct AddPlantView: View {
         speciesCatalog.first { $0.name == speciesName }
     }
 
+    // Build a Google Images search link for a plant name. URLComponents handles
+    // spaces and symbols in the name (like escaping a value before putting it in a query).
+    private func photosURL(for name: String) -> URL? {
+        var link = URLComponents(string: "https://www.google.com/search")
+        link?.queryItems = [
+            URLQueryItem(name: "tbm", value: "isch"),          // "isch" = image search
+            URLQueryItem(name: "q", value: "\(name) plant"),
+        ]
+        return link?.url
+    }
+
     // You need either a nickname or a species before you can save.
     private var canSave: Bool {
         !nickname.trimmingCharacters(in: .whitespaces).isEmpty || !speciesName.isEmpty
@@ -55,7 +66,7 @@ struct AddPlantView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Plant") {
+                Section {
                     TextField("Nickname (optional)", text: $nickname)
 
                     Picker("Type", selection: $speciesName) {
@@ -72,6 +83,20 @@ struct AddPlantView: View {
                     #if os(iOS)
                     .pickerStyle(.navigationLink)   // opens a full scrollable list on iPhone
                     #endif
+
+                    // STEP 11: open Google Images for the chosen type, so you can
+                    // compare the photos with your own plant.
+                    if let s = selectedSpecies, let url = photosURL(for: s.name) {
+                        Link(destination: url) {
+                            Label("See photos of \(s.name)", systemImage: "photo.on.rectangle.angled")
+                        }
+                    }
+                } header: {
+                    Text("Plant")
+                } footer: {
+                    if selectedSpecies == nil {
+                        Text("Not sure what it is? Pick a type to see photos and compare.")
+                    }
                 }
 
                 Section {

@@ -64,9 +64,15 @@ struct WeatherView: View {
     @State private var forecast: Forecast?
     @State private var errorText: String?
 
-    // The place we're showing. Starts in St. Louis; search changes it.
-    @State private var placeName = "St. Louis"
-    @State private var place = stLouis
+    // STEP 8: The place is SAVED on the phone (@AppStorage), so it's remembered after
+    // the app closes AND shared with the Plants tab, which reads the same keys.
+    // Starts in St. Louis; search or "Use my location" changes it.
+    @AppStorage("placeName") private var placeName = "St. Louis"
+    @AppStorage("placeLat") private var placeLat = stLouis.latitude
+    @AppStorage("placeLon") private var placeLon = stLouis.longitude
+    private var place: CLLocationCoordinate2D {
+        CLLocationCoordinate2D(latitude: placeLat, longitude: placeLon)
+    }
     @State private var mapPosition = mapArea(around: stLouis)
 
     @State private var searchText = ""
@@ -160,6 +166,8 @@ struct WeatherView: View {
                 }
             }
         }
+        // Point the map at the saved place when the screen opens.
+        .onAppear { mapPosition = mapArea(around: place) }
         // Runs on open, and again every time the place moves.
         .task(id: "\(place.latitude),\(place.longitude)") {
             await loadWeather()
@@ -176,12 +184,18 @@ struct WeatherView: View {
         }
     }
 
+    // Save a new place (latitude and longitude are stored separately).
+    private func setPlace(_ coordinate: CLLocationCoordinate2D) {
+        placeLat = coordinate.latitude
+        placeLon = coordinate.longitude
+    }
+
     // Ask the phone where we are. The first time, iOS shows the "Allow location?" popup.
     private func useMyLocation() async {
         do {
             for try await update in CLLocationUpdate.liveUpdates() {
                 if let location = update.location {
-                    place = location.coordinate
+                    setPlace(location.coordinate)
                     placeName = "My Location"
                     mapPosition = mapArea(around: place)
                     searchMessage = nil
@@ -205,7 +219,7 @@ struct WeatherView: View {
         do {
             let response = try await MKLocalSearch(request: request).start()
             guard let match = response.mapItems.first else { return }
-            place = match.location.coordinate
+            setPlace(match.location.coordinate)
             placeName = match.name ?? searchText
             mapPosition = mapArea(around: place)
             searchMessage = nil

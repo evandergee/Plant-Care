@@ -9,6 +9,10 @@ A simple iPhone app for tracking houseplants and when they need water. Built wit
 - Tap any plant to edit its details.
 - Track light, room, pot type, drainage, soil, fertilizing schedule, and notes.
 - Plants are saved on the device with SwiftData, so they persist between launches.
+- Each plant shows an emoji matched to its species.
+- Weather tab with a map, place search, and "use my location". The chosen place is remembered.
+- Weather tips for outdoor plants: frost risk, rain coming, or hot days ahead.
+- A watering reminder notification at 9 AM on the day each plant is due.
 - Green garden theme with a custom app icon and light and dark mode.
 
 ## Project structure
@@ -19,7 +23,10 @@ A simple iPhone app for tracking houseplants and when they need water. Built wit
 | `Plant.swift` | Data model (the "plants table"), choice lists, and plant catalog |
 | `ContentView.swift` | Main plant list screen |
 | `AddPlantView.swift` | Form for adding and editing plants |
-| `Theme.swift` | Colors, background, and icons |
+| `WeatherView.swift` | Weather tab: forecast, map, search, and location |
+| `WateringTips.swift` | Rules that turn the forecast into tips for outdoor plants |
+| `WateringAlerts.swift` | Schedules the watering reminder notifications |
+| `Theme.swift` | Colors and background |
 
 ## What I learned
 
@@ -37,7 +44,6 @@ Open `PlantCare.xcodeproj` in Xcode (iOS 27 SDK), choose an iPhone simulator, an
 
 ## Ideas for next steps
 
-- Watering reminders with notifications
 - Fertilizing tracker
 - Plant photos
 

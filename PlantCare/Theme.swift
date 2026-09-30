@@ -21,27 +21,13 @@ struct GardenBackground: View {
     }
 }
 
-// A little icon for each plant group (these are Apple's built-in SF Symbols).
-extension PlantCategory {
-    var icon: String {
-        switch self {
-        case .tropical: "leaf.fill"
-        case .easyCare: "tree.fill"
-        case .succulent: "sun.max.fill"
-        case .flowering: "camera.macro"
-        case .herb: "carrot.fill"
-        case .carnivorous: "ladybug.fill"
-        case .airPlant: "wind"
-        }
-    }
-}
-
 extension Plant {
-    // Look up this plant's group in the catalog (like a JOIN on species name).
-    var category: PlantCategory? {
-        speciesCatalog.first { $0.name == speciesName }?.category
+    // Look up this plant's row in the catalog (like a JOIN on species name).
+    var species: Species? {
+        speciesCatalog.first { $0.name == speciesName }
     }
-    var icon: String {
-        category?.icon ?? "leaf"
+    // The plant's own emoji from the catalog. Plants that aren't listed get a potted plant.
+    var emoji: String {
+        species?.emoji ?? "🪴"
     }
 }

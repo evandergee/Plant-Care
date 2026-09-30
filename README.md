@@ -2,6 +2,15 @@
 
 A simple iPhone app for tracking houseplants and when they need water. Built with SwiftUI and SwiftData.
 
+## Screenshots
+
+<p>
+  <img src="screenshots/plants.png" width="200" alt="Plant list with watering status and current weather">
+  <img src="screenshots/edit-plant.png" width="200" alt="Form for editing a plant">
+  <img src="screenshots/plant-types.png" width="200" alt="Plant type picker grouped by category">
+  <img src="screenshots/weather.png" width="200" alt="Weather tab with a map and 7-day forecast">
+</p>
+
 ## Features
 
 - Plant list with watering status. Plants that are due are highlighted, and one tap marks a plant as watered.

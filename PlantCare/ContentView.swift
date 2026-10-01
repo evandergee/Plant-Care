@@ -25,6 +25,8 @@ struct ContentView: View {
 
     // STEP 13: how the list is grouped. @AppStorage remembers the choice next time.
     @AppStorage("groupByRoom") private var groupByRoom = false
+    // STEP 14: smaller rows so more plants fit on screen. Also remembered.
+    @AppStorage("compactRows") private var compactRows = false
 
     // One section of the list: a title and the plants in it.
     private struct PlantGroup: Identifiable {
@@ -85,11 +87,23 @@ struct ContentView: View {
                 // STEP 13: switch between grouping by due date and by room.
                 if !plants.isEmpty {
                     Section {
-                        Picker("Group plants", selection: $groupByRoom) {
-                            Text("By Due Date").tag(false)
-                            Text("By Room").tag(true)
+                        HStack(spacing: 10) {
+                            Picker("Group plants", selection: $groupByRoom) {
+                                Text("By Due Date").tag(false)
+                                Text("By Room").tag(true)
+                            }
+                            .pickerStyle(.segmented)
+
+                            // STEP 14: switch row size. The icon shows the style you'll switch TO.
+                            Button {
+                                withAnimation { compactRows.toggle() }
+                            } label: {
+                                Image(systemName: compactRows ? "rectangle.grid.1x2" : "list.bullet")
+                            }
+                            .buttonStyle(.bordered)
+                            .buttonBorderShape(.circle)
+                            .accessibilityLabel(compactRows ? "Show larger rows" : "Show compact rows")
                         }
-                        .pickerStyle(.segmented)
                     }
                     .listRowBackground(Color.clear)
                     .listRowInsets(EdgeInsets())
@@ -101,7 +115,8 @@ struct ContentView: View {
                         ForEach(group.plants) { plant in
                             PlantRow(plant: plant,
                                      tip: forecast.flatMap { wateringTip(for: plant, forecast: $0) },
-                                     showRoom: !groupByRoom)   // the header already says the room
+                                     showRoom: !groupByRoom,   // the header already says the room
+                                     compact: compactRows)
                                 .contentShape(Rectangle())
                                 .onTapGesture { editingPlant = plant }   // tap a row to edit it
                                 .listRowBackground(
@@ -213,47 +228,78 @@ struct PlantRow: View {
     @Bindable var plant: Plant   // a saved plant; changes are written to the database
     var tip: WateringTip? = nil  // STEP 6: weather tip, if there is one
     var showRoom = true          // STEP 13: hidden when the list is already grouped by room
+    var compact = false          // STEP 14: the smaller row style
+
+    // Species (if there's a nickname) and room, e.g. "Monstera deliciosa · Living room".
+    private var subtitle: String {
+        [plant.nickname.isEmpty ? "" : plant.speciesName, showRoom ? plant.room.label : ""]
+            .filter { !$0.isEmpty }
+            .joined(separator: " · ")
+    }
+
+    // When it's due, and its color: orange if thirsty, green otherwise.
+    private var dueText: String {
+        plant.needsWater ? "Needs water" : plant.nextWatering.formatted(.dateTime.month(.abbreviated).day())
+    }
+    private var dueColor: Color { plant.needsWater ? Color.thirsty : Color.leaf }
 
     var body: some View {
-        HStack(spacing: 14) {
+        HStack(spacing: compact ? 10 : 14) {
             // Round badge with the plant's own emoji
             Text(plant.emoji)
-                .font(.title2)
-                .frame(width: 44, height: 44)
+                .font(compact ? .body : .title2)
+                .frame(width: compact ? 32 : 44, height: compact ? 32 : 44)
                 .background(Circle().fill(Color.leafSoft))
                 .accessibilityHidden(true)
 
-            VStack(alignment: .leading, spacing: 4) {
-                Text(plant.displayName)
-                    .font(.headline)
-
-                // Species (if there's a nickname) and room. Skipped if there's nothing to show,
-                // so the row doesn't get an empty gap.
-                let subtitle = [plant.nickname.isEmpty ? "" : plant.speciesName, showRoom ? plant.room.label : ""]
-                    .filter { !$0.isEmpty }
-                    .joined(separator: " · ")
-                if !subtitle.isEmpty {
-                    Text(subtitle)
+            if compact {
+                // STEP 14: compact style. Two short lines: the name, then
+                // "Due Oct 2 · Monstera deliciosa" with the due part in color.
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(plant.displayName)
+                        .font(.body.weight(.semibold))
+                        .lineLimit(1)
+                    // A colored Text placed inside another Text, so both share one line.
+                    let due = Text(plant.needsWater ? dueText : "Due \(dueText)")
+                        .foregroundStyle(dueColor)
+                        .fontWeight(.semibold)
+                    Text("\(due)\(subtitle.isEmpty ? "" : " · \(subtitle)")")
                         .font(.caption)
                         .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                    if let tip {
+                        Label(tip.text, systemImage: tip.icon)
+                            .font(.caption2)
+                            .foregroundStyle(tip.color)
+                            .lineLimit(1)
+                    }
                 }
+            } else {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(plant.displayName)
+                        .font(.headline)
 
-                // Status pill: orange if thirsty, green otherwise
-                Label(plant.needsWater
-                      ? "Needs water"
-                      : plant.nextWatering.formatted(.dateTime.month(.abbreviated).day()),
-                      systemImage: plant.needsWater ? "exclamationmark.circle.fill" : "calendar")
-                    .font(.caption.weight(.semibold))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 3)
-                    .foregroundStyle(plant.needsWater ? Color.thirsty : Color.leaf)
-                    .background(Capsule().fill((plant.needsWater ? Color.thirsty : Color.leaf).opacity(0.15)))
+                    // Skipped if there's nothing to show, so the row doesn't get an empty gap.
+                    if !subtitle.isEmpty {
+                        Text(subtitle)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
 
-                // STEP 6: the weather tip, only for outdoor plants when something's up
-                if let tip {
-                    Label(tip.text, systemImage: tip.icon)
-                        .font(.caption)
-                        .foregroundStyle(tip.color)
+                    // Status pill
+                    Label(dueText, systemImage: plant.needsWater ? "exclamationmark.circle.fill" : "calendar")
+                        .font(.caption.weight(.semibold))
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 3)
+                        .foregroundStyle(dueColor)
+                        .background(Capsule().fill(dueColor.opacity(0.15)))
+
+                    // STEP 6: the weather tip, only for outdoor plants when something's up
+                    if let tip {
+                        Label(tip.text, systemImage: tip.icon)
+                            .font(.caption)
+                            .foregroundStyle(tip.color)
+                    }
                 }
             }
 
@@ -266,14 +312,14 @@ struct PlantRow: View {
                 }
             } label: {
                 Image(systemName: "drop.fill")
-                    .font(.title3)
+                    .font(compact ? .body : .title3)
             }
             .buttonStyle(.borderedProminent)
             .buttonBorderShape(.circle)
-            .tint(plant.needsWater ? Color.thirsty : Color.leaf)
+            .tint(dueColor)
             .accessibilityLabel("Mark \(plant.displayName) as watered")
         }
-        .padding(.vertical, 6)
+        .padding(.vertical, compact ? 0 : 6)
     }
 }
 

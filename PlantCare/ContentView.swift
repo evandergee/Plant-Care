@@ -119,6 +119,7 @@ struct ContentView: View {
             .sheet(isPresented: $showingAddPlant) {
                 AddPlantView { newPlant in
                     context.insert(newPlant)   // INSERT INTO plants ...
+                    newPlant.water(on: newPlant.lastWatered)   // first entry in its history
                 }
             }
             .sheet(item: $editingPlant) { plant in
@@ -195,7 +196,7 @@ struct PlantRow: View {
             // Water button
             Button {
                 withAnimation(.spring) {
-                    plant.lastWatered = Date()
+                    plant.water()   // STEP 12: logs it in the history too
                 }
             } label: {
                 Image(systemName: "drop.fill")
@@ -212,5 +213,5 @@ struct PlantRow: View {
 
 #Preview {
     ContentView()
-        .modelContainer(for: Plant.self, inMemory: true)
+        .modelContainer(for: [Plant.self, WateringEvent.self], inMemory: true)
 }

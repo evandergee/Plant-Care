@@ -14,7 +14,8 @@ import SwiftData
             }
             .tint(Color.leaf)
         }
-        // STEP 4: Create the on-device database for Plant and share it with every screen.
-        .modelContainer(for: Plant.self)
+        // STEP 4: Create the on-device database and share it with every screen.
+        // STEP 12 adds a second table, WateringEvent, for the watering history.
+        .modelContainer(for: [Plant.self, WateringEvent.self])
     }
 }

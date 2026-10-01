@@ -203,6 +203,11 @@ final class Plant {
     var notes: String
     var dateAdded: Date                // used to keep the list in a stable order
 
+    // STEP 12: every watering of this plant (see WateringHistory.swift).
+    // .cascade means deleting a plant also deletes its history, like ON DELETE CASCADE in SQL.
+    @Relationship(deleteRule: .cascade, inverse: \WateringEvent.plant)
+    var waterings: [WateringEvent] = []
+
     init(nickname: String, speciesName: String, waterEveryDays: Int, lastWatered: Date,
          light: LightLevel, room: Room, potType: PotType, hasDrainage: Bool,
          soil: SoilType, fertilizes: Bool, fertilizeEveryWeeks: Int, notes: String) {

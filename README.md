@@ -16,6 +16,7 @@ A simple iPhone app for tracking houseplants and when they need water. Built wit
 - Plant list with watering status. Plants that are due are highlighted, and one tap marks a plant as watered.
 - Add Plant form with 63 common plants in 7 groups. Picking a plant pre-fills its typical watering schedule and light needs.
 - Tap any plant to edit its details.
+- Watering history for each plant: every watering is logged, with times watered, average time between waterings, and how many were on time.
 - A "See photos" link on the plant form opens Google Images for the chosen type, to help confirm what a plant is.
 - Track light, room, pot type, drainage, soil, fertilizing schedule, and notes.
 - Plants are saved on the device with SwiftData, so they persist between launches.
@@ -36,6 +37,7 @@ A simple iPhone app for tracking houseplants and when they need water. Built wit
 | `WeatherView.swift` | Weather tab: forecast, map, search, and location |
 | `WateringTips.swift` | Rules that turn the forecast into tips for outdoor plants |
 | `WateringAlerts.swift` | Schedules the watering reminder notifications |
+| `WateringHistory.swift` | Watering log table (one plant, many waterings) and the history screen |
 | `Theme.swift` | Colors and background |
 
 ## What I learned

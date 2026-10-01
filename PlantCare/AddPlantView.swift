@@ -104,6 +104,16 @@ struct AddPlantView: View {
                             value: $waterEveryDays, in: 1...60)
                     DatePicker("Last watered", selection: $lastWatered,
                                in: ...Date(), displayedComponents: .date)
+
+                    // STEP 12: open this plant's watering history (only when editing).
+                    if let plant {
+                        NavigationLink {
+                            WateringHistoryView(plant: plant)
+                        } label: {
+                            LabeledContent("Watering history",
+                                           value: plant.waterings.isEmpty ? "None yet" : "\(plant.waterings.count)")
+                        }
+                    }
                 } header: {
                     Text("Watering")
                 } footer: {
@@ -155,6 +165,11 @@ struct AddPlantView: View {
                     if s.category == .succulent { soil = .cactus }
                     if s.category == .airPlant { potType = .mounted; hasDrainage = false }
                 }
+            }
+            // STEP 12: if removing a watering on the history screen moves "Last watered"
+            // back, show the new date here too (otherwise Save would put the old one back).
+            .onChange(of: plant?.lastWatered) { _, newDate in
+                if let newDate { lastWatered = newDate }
             }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

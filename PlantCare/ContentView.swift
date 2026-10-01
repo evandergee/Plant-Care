@@ -23,6 +23,40 @@ struct ContentView: View {
     @AppStorage("placeLat") private var placeLat = stLouis.latitude
     @AppStorage("placeLon") private var placeLon = stLouis.longitude
 
+    // STEP 13: how the list is grouped. @AppStorage remembers the choice next time.
+    @AppStorage("groupByRoom") private var groupByRoom = false
+
+    // One section of the list: a title and the plants in it.
+    private struct PlantGroup: Identifiable {
+        let title: String
+        let plants: [Plant]
+        var id: String { title }
+    }
+
+    // Sort by next watering (ORDER BY next_watering), then split into sections,
+    // either by when they're due or by room (like GROUP BY). Empty sections are skipped.
+    private var groups: [PlantGroup] {
+        let sorted = plants.sorted { $0.nextWatering < $1.nextWatering }
+
+        if groupByRoom {
+            return Room.allCases.compactMap { room in
+                let inRoom = sorted.filter { $0.room == room }
+                // .capitalized turns "Living room" into "Living Room" to match the other headers.
+                return inRoom.isEmpty ? nil : PlantGroup(title: room.label.capitalized, plants: inRoom)
+            }
+        }
+
+        let dueGroups: [(title: String, matches: (Int) -> Bool)] = [
+            ("Needs Water", { $0 <= 0 }),             // due today or overdue
+            ("Next 3 Days", { (1...3).contains($0) }),
+            ("Later",       { $0 > 3 }),
+        ]
+        return dueGroups.compactMap { group in
+            let inGroup = sorted.filter { group.matches($0.daysUntilWatering) }
+            return inGroup.isEmpty ? nil : PlantGroup(title: group.title, plants: inGroup)
+        }
+    }
+
     // How many plants are thirsty right now (like COUNT(*) WHERE needs_water).
     private var thirstyCount: Int {
         plants.filter(\.needsWater).count
@@ -48,24 +82,50 @@ struct ContentView: View {
                     .listRowBackground(Color.leafSoft)
                 }
 
-                Section {
-                    ForEach(plants) { plant in
-                        PlantRow(plant: plant,
-                                 tip: forecast.flatMap { wateringTip(for: plant, forecast: $0) })
-                            .contentShape(Rectangle())
-                            .onTapGesture { editingPlant = plant }   // tap a row to edit it
-                            .listRowBackground(
-                                RoundedRectangle(cornerRadius: 14)
-                                    .fill(.background.opacity(0.85))
-                                    .padding(.vertical, 3)
-                            )
-                            .listRowSeparator(.hidden)
+                // STEP 13: switch between grouping by due date and by room.
+                if !plants.isEmpty {
+                    Section {
+                        Picker("Group plants", selection: $groupByRoom) {
+                            Text("By Due Date").tag(false)
+                            Text("By Room").tag(true)
+                        }
+                        .pickerStyle(.segmented)
                     }
-                    .onDelete { rows in
-                        for row in rows {
-                            context.delete(plants[row])   // DELETE FROM plants WHERE ...
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets())
+                }
+
+                // One section per group, with a count of its plants on the right.
+                ForEach(groups) { group in
+                    Section {
+                        ForEach(group.plants) { plant in
+                            PlantRow(plant: plant,
+                                     tip: forecast.flatMap { wateringTip(for: plant, forecast: $0) },
+                                     showRoom: !groupByRoom)   // the header already says the room
+                                .contentShape(Rectangle())
+                                .onTapGesture { editingPlant = plant }   // tap a row to edit it
+                                .listRowBackground(
+                                    RoundedRectangle(cornerRadius: 14)
+                                        .fill(.background.opacity(0.85))
+                                        .padding(.vertical, 3)
+                                )
+                                .listRowSeparator(.hidden)
+                        }
+                        .onDelete { rows in
+                            for row in rows {
+                                context.delete(group.plants[row])   // DELETE FROM plants WHERE ...
+                            }
+                        }
+                    } header: {
+                        HStack {
+                            Text(group.title)
+                            Spacer()
+                            Text("\(group.plants.count)")
                         }
                     }
+                }
+
+                Section {
                 } footer: {
                     // STEP 10: a short note under the list explaining how reminders work.
                     if !plants.isEmpty {
@@ -152,6 +212,7 @@ struct ContentView: View {
 struct PlantRow: View {
     @Bindable var plant: Plant   // a saved plant; changes are written to the database
     var tip: WateringTip? = nil  // STEP 6: weather tip, if there is one
+    var showRoom = true          // STEP 13: hidden when the list is already grouped by room
 
     var body: some View {
         HStack(spacing: 14) {
@@ -166,11 +227,16 @@ struct PlantRow: View {
                 Text(plant.displayName)
                     .font(.headline)
 
-                Text([plant.nickname.isEmpty ? "" : plant.speciesName, plant.room.label]
-                        .filter { !$0.isEmpty }
-                        .joined(separator: " · "))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                // Species (if there's a nickname) and room. Skipped if there's nothing to show,
+                // so the row doesn't get an empty gap.
+                let subtitle = [plant.nickname.isEmpty ? "" : plant.speciesName, showRoom ? plant.room.label : ""]
+                    .filter { !$0.isEmpty }
+                    .joined(separator: " · ")
+                if !subtitle.isEmpty {
+                    Text(subtitle)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
 
                 // Status pill: orange if thirsty, green otherwise
                 Label(plant.needsWater

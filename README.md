@@ -14,6 +14,7 @@ A simple iPhone app for tracking houseplants and when they need water. Built wit
 ## Features
 
 - Plant list with watering status. Plants that are due are highlighted, and one tap marks a plant as watered.
+- Group the list by due date (Needs Water, Next 3 Days, Later) or by room, sorted so the soonest due is first.
 - Add Plant form with 63 common plants in 7 groups. Picking a plant pre-fills its typical watering schedule and light needs.
 - Tap any plant to edit its details.
 - Watering history for each plant: every watering is logged, with times watered, average time between waterings, and how many were on time.

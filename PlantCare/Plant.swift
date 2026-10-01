@@ -242,6 +242,12 @@ final class Plant {
     var needsWater: Bool {
         nextWatering <= Calendar.current.startOfDay(for: Date())
     }
+
+    // STEP 13: whole days until the next watering. 0 = today, negative = overdue.
+    var daysUntilWatering: Int {
+        let today = Calendar.current.startOfDay(for: Date())
+        return Calendar.current.dateComponents([.day], from: today, to: nextWatering).day ?? 0
+    }
 }
 
 // Sample plants, added only the very first time the app opens.

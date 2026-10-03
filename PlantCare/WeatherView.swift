@@ -39,26 +39,6 @@ func mapArea(around place: CLLocationCoordinate2D) -> MapCameraPosition {
                                span: MKCoordinateSpan(latitudeDelta: 0.3, longitudeDelta: 0.3)))
 }
 
-// 3. A small "72° · 58% RH" badge you can drop on any screen.
-struct CurrentConditionsBar: View {
-    @State private var current: Forecast.Current?
-
-    var body: some View {
-        HStack(spacing: 10) {
-            if let current {
-                Label("\(Int(current.temperature_2m))°", systemImage: "thermometer.medium")
-                Label("\(Int(current.relative_humidity_2m))% RH", systemImage: "humidity")
-            } else {
-                ProgressView()
-            }
-        }
-        .font(.subheadline)
-        .task {
-            current = try? await fetchForecast(at: stLouis).current
-        }
-    }
-}
-
 // 4. The weather screen: search box, map, current conditions, 7-day forecast.
 struct WeatherView: View {
     @State private var forecast: Forecast?
@@ -207,7 +187,7 @@ struct WeatherView: View {
                     return   // one reading is enough; stop listening
                 }
                 if update.authorizationDenied {
-                    searchMessage = "Location is off for PlantCare. You can turn it on in Settings."
+                    searchMessage = "Location is off for Project Gaia. You can turn it on in Settings."
                     return
                 }
             }
@@ -287,8 +267,4 @@ struct TempRangeBar: View {
 
 #Preview("7-day screen") {
     NavigationStack { WeatherView() }
-}
-
-#Preview("Badge") {
-    CurrentConditionsBar()
 }

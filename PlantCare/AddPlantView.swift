@@ -90,7 +90,7 @@ struct AddPlantView: View {
                         .buttonStyle(.plain)
                         .accessibilityLabel("View photo")
                     }
-                    // The camera only exists on a real iPhone, so the button is hidden in the simulator.
+                    // Only show the camera button on devices that have a camera.
                     if UIImagePickerController.isSourceTypeAvailable(.camera) {
                         Button {
                             showingCamera = true
@@ -150,7 +150,7 @@ struct AddPlantView: View {
                     Text("Plant")
                 } footer: {
                     if selectedSpecies == nil {
-                        Text("Not sure what it is? Pick a type to see photos and compare.")
+                        Text("Pick a type to see photos of it and compare with your plant.")
                     }
                 }
 
@@ -233,6 +233,8 @@ struct AddPlantView: View {
                        let image = UIImage(data: data) {
                         photoData = shrunkPhoto(image)
                     }
+                    // Clear the pick, so choosing the same photo again (after removing it) still works.
+                    libraryItem = nil
                 }
             }
             .fullScreenCover(isPresented: $showingCamera) {

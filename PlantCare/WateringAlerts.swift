@@ -30,7 +30,8 @@ enum WateringAlerts {
         for (index, plant) in plants.enumerated() {
             let content = UNMutableNotificationContent()
             content.title = "Time to water \(plant.displayName) 💧"
-            content.body = "\(plant.room.label) · every \(plant.waterEveryDays) days"
+            let days = plant.waterEveryDays
+            content.body = "\(plant.room.label) · every \(days) day\(days == 1 ? "" : "s")"
             content.sound = .default
 
             let trigger: UNNotificationTrigger

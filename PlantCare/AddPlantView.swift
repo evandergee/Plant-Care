@@ -23,6 +23,7 @@ struct AddPlantView: View {
     @State private var fertilizes: Bool
     @State private var fertilizeEveryWeeks: Int
     @State private var notes: String
+    @State private var showingTypePicker = false   // STEP 15: is the plant type list open?
 
     // Fill the form from the plant being edited, or with defaults for a new one.
     init(plant: Plant? = nil, onSave: @escaping (Plant) -> Void = { _ in }) {
@@ -69,20 +70,19 @@ struct AddPlantView: View {
                 Section {
                     TextField("Nickname (optional)", text: $nickname)
 
-                    Picker("Type", selection: $speciesName) {
-                        Text("Other / not listed").tag("")
-                        // One group per category, like GROUP BY category in SQL.
-                        ForEach(PlantCategory.allCases) { category in
-                            Section(category.rawValue) {
-                                ForEach(speciesCatalog.filter { $0.category == category }) { species in
-                                    Text(species.name).tag(species.name)
-                                }
-                            }
+                    // STEP 15: opens the searchable plant list (SpeciesPicker.swift).
+                    Button {
+                        showingTypePicker = true
+                    } label: {
+                        HStack {
+                            LabeledContent("Type", value: speciesName.isEmpty ? "Other / not listed" : speciesName)
+                            Image(systemName: "chevron.right")
+                                .font(.footnote.weight(.semibold))
+                                .foregroundStyle(.tertiary)
                         }
+                        .contentShape(Rectangle())
                     }
-                    #if os(iOS)
-                    .pickerStyle(.navigationLink)   // opens a full scrollable list on iPhone
-                    #endif
+                    .buttonStyle(.plain)
 
                     // STEP 11: open Google Images for the chosen type, so you can
                     // compare the photos with your own plant.
@@ -122,18 +122,29 @@ struct AddPlantView: View {
                     }
                 }
 
-                Section("Environment") {
+                Section {
                     Picker("Light", selection: $light) {
                         ForEach(LightLevel.allCases) { Text($0.label).tag($0) }
                     }
                     Picker("Room", selection: $room) {
                         ForEach(Room.allCases) { Text($0.label).tag($0) }
                     }
+                } header: {
+                    Text("Environment")
+                } footer: {
+                    // STEP 15: only shows for light that could badly hurt this plant.
+                    if let s = selectedSpecies, let warning = lightWarning(for: s, light: light) {
+                        Label(warning, systemImage: "exclamationmark.triangle.fill")
+                            .foregroundStyle(Color.thirsty)
+                    }
                 }
 
                 Section("Pot & Soil") {
                     Picker("Pot", selection: $potType) {
-                        ForEach(PotType.allCases) { Text($0.label).tag($0) }
+                        // STEP 15: the current choices, plus Fabric only if this plant already uses it.
+                        ForEach(PotType.choices + (potType == .fabric ? [.fabric] : [])) {
+                            Text($0.label).tag($0)
+                        }
                     }
                     Toggle("Has drainage hole", isOn: $hasDrainage)
                     Picker("Soil", selection: $soil) {
@@ -157,6 +168,9 @@ struct AddPlantView: View {
             .scrollContentBackground(.hidden)   // STEP 3: green garden background
             .background(GardenBackground())
             .navigationTitle(plant == nil ? "Add Plant" : "Edit Plant")
+            .navigationDestination(isPresented: $showingTypePicker) {
+                SpeciesPicker(selection: $speciesName, isShown: $showingTypePicker)
+            }
             // When you pick a species, pre-fill its typical watering and light.
             .onChange(of: speciesName) { _, _ in
                 if let s = selectedSpecies {

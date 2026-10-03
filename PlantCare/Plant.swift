@@ -48,9 +48,13 @@ enum Room: String, CaseIterable, Identifiable, Codable {
 enum PotType: String, CaseIterable, Identifiable, Codable {
     case plastic, terracotta, ceramic, selfWatering, hanging, fabric, glass, mounted, other
     var id: String { rawValue }
+
+    // STEP 15: the choices shown in the form. Fabric grow bag is retired: it stays in the
+    // list above so plants already saved with it still load, but new plants can't pick it.
+    static let choices: [PotType] = allCases.filter { $0 != .fabric }
     var label: String {
         switch self {
-        case .plastic: "Plastic nursery pot"
+        case .plastic: "Plastic or insert"
         case .terracotta: "Terracotta"
         case .ceramic: "Glazed ceramic"
         case .selfWatering: "Self-watering"
@@ -133,6 +137,30 @@ let speciesCatalog: [Species] = [
     Species(name: "Boston Fern", emoji: "🌿", category: .tropical, waterEveryDays: 3, light: .medium),
     Species(name: "Bird's Nest Fern", emoji: "🌿", category: .tropical, waterEveryDays: 5, light: .medium),
     Species(name: "Maidenhair Fern", emoji: "🌿", category: .tropical, waterEveryDays: 3, light: .medium),
+    Species(name: "Asparagus Fern", emoji: "🌿", category: .tropical, waterEveryDays: 5, light: .medium),
+    Species(name: "Staghorn Fern", emoji: "🌿", category: .tropical, waterEveryDays: 7, light: .medium),
+    Species(name: "Rabbit's Foot Fern", emoji: "🌿", category: .tropical, waterEveryDays: 5, light: .medium),
+    Species(name: "Monstera adansonii", emoji: "🪴", category: .tropical, waterEveryDays: 7, light: .brightIndirect),
+    Species(name: "Mini Monstera (Rhaphidophora)", emoji: "🪴", category: .tropical, waterEveryDays: 7, light: .brightIndirect),
+    Species(name: "Philodendron Brasil", emoji: "🍃", category: .tropical, waterEveryDays: 7, light: .medium),
+    Species(name: "Pink Princess Philodendron", emoji: "🪴", category: .tropical, waterEveryDays: 7, light: .brightIndirect),
+    Species(name: "Satin Pothos (Scindapsus)", emoji: "🍃", category: .tropical, waterEveryDays: 7, light: .medium),
+    Species(name: "Peperomia", emoji: "🌿", category: .tropical, waterEveryDays: 10, light: .medium),
+    Species(name: "Watermelon Peperomia", emoji: "🌿", category: .tropical, waterEveryDays: 7, light: .medium),
+    Species(name: "Nerve Plant (Fittonia)", emoji: "🌿", category: .tropical, waterEveryDays: 3, light: .medium),
+    Species(name: "Polka Dot Plant", emoji: "🌿", category: .tropical, waterEveryDays: 4, light: .brightIndirect),
+    Species(name: "Wandering Dude (Tradescantia)", emoji: "🍃", category: .tropical, waterEveryDays: 5, light: .brightIndirect),
+    Species(name: "String of Hearts", emoji: "🍃", category: .tropical, waterEveryDays: 10, light: .brightIndirect),
+    Species(name: "Rattlesnake Plant", emoji: "🪴", category: .tropical, waterEveryDays: 5, light: .medium),
+    Species(name: "Stromanthe Triostar", emoji: "🪴", category: .tropical, waterEveryDays: 5, light: .brightIndirect),
+    Species(name: "Caladium", emoji: "🪴", category: .tropical, waterEveryDays: 5, light: .medium),
+    Species(name: "Elephant Ear (Colocasia)", emoji: "🪴", category: .tropical, waterEveryDays: 4, light: .brightIndirect),
+    Species(name: "Ficus Audrey", emoji: "🌳", category: .tropical, waterEveryDays: 7, light: .brightIndirect),
+    Species(name: "Weeping Fig", emoji: "🌳", category: .tropical, waterEveryDays: 7, light: .brightIndirect),
+    Species(name: "Kentia Palm", emoji: "🌴", category: .tropical, waterEveryDays: 10, light: .medium),
+    Species(name: "Majesty Palm", emoji: "🌴", category: .tropical, waterEveryDays: 5, light: .brightIndirect),
+    Species(name: "Banana Plant", emoji: "🍌", category: .tropical, waterEveryDays: 5, light: .brightIndirect),
+    Species(name: "Norfolk Island Pine", emoji: "🌲", category: .tropical, waterEveryDays: 7, light: .brightIndirect),
 
     // Low-Maintenance
     Species(name: "Snake Plant", emoji: "🪴", category: .easyCare, waterEveryDays: 14, light: .low),
@@ -140,6 +168,10 @@ let speciesCatalog: [Species] = [
     Species(name: "Cast Iron Plant", emoji: "🪴", category: .easyCare, waterEveryDays: 10, light: .low),
     Species(name: "Chinese Evergreen", emoji: "🪴", category: .easyCare, waterEveryDays: 10, light: .low),
     Species(name: "Ponytail Palm", emoji: "🌴", category: .easyCare, waterEveryDays: 14, light: .brightIndirect),
+    Species(name: "Lucky Bamboo", emoji: "🎍", category: .easyCare, waterEveryDays: 7, light: .medium),
+    Species(name: "Yucca", emoji: "🌴", category: .easyCare, waterEveryDays: 14, light: .brightIndirect),
+    Species(name: "Sago Palm", emoji: "🌴", category: .easyCare, waterEveryDays: 14, light: .brightIndirect),
+    Species(name: "Dracaena Marginata", emoji: "🌴", category: .easyCare, waterEveryDays: 10, light: .medium),
 
     // Succulents & Cacti
     Species(name: "Echeveria", emoji: "🪷", category: .succulent, waterEveryDays: 10, light: .fullSun),
@@ -156,6 +188,15 @@ let speciesCatalog: [Species] = [
     Species(name: "Christmas Cactus", emoji: "🌺", category: .succulent, waterEveryDays: 10, light: .brightIndirect),
     Species(name: "Barrel Cactus", emoji: "🌵", category: .succulent, waterEveryDays: 21, light: .fullSun),
     Species(name: "Bunny Ears Cactus", emoji: "🌵", category: .succulent, waterEveryDays: 21, light: .fullSun),
+    Species(name: "Panda Plant", emoji: "🌵", category: .succulent, waterEveryDays: 14, light: .brightIndirect),
+    Species(name: "Gasteria", emoji: "🌵", category: .succulent, waterEveryDays: 14, light: .brightIndirect),
+    Species(name: "Ghost Plant", emoji: "🪷", category: .succulent, waterEveryDays: 14, light: .fullSun),
+    Species(name: "Paddle Plant", emoji: "🪷", category: .succulent, waterEveryDays: 14, light: .fullSun),
+    Species(name: "String of Bananas", emoji: "🫛", category: .succulent, waterEveryDays: 14, light: .brightIndirect),
+    Species(name: "Agave", emoji: "🌵", category: .succulent, waterEveryDays: 21, light: .fullSun),
+    Species(name: "Pencil Cactus (Euphorbia)", emoji: "🌵", category: .succulent, waterEveryDays: 14, light: .fullSun),
+    Species(name: "Moon Cactus", emoji: "🌵", category: .succulent, waterEveryDays: 14, light: .brightIndirect),
+    Species(name: "Prickly Pear", emoji: "🌵", category: .succulent, waterEveryDays: 21, light: .fullSun),
 
     // Flowering
     Species(name: "Orchid (Phalaenopsis)", emoji: "🌸", category: .flowering, waterEveryDays: 7, light: .brightIndirect),
@@ -165,6 +206,16 @@ let speciesCatalog: [Species] = [
     Species(name: "Begonia", emoji: "🌸", category: .flowering, waterEveryDays: 5, light: .brightIndirect),
     Species(name: "Gardenia", emoji: "🌼", category: .flowering, waterEveryDays: 5, light: .brightIndirect),
     Species(name: "Hibiscus", emoji: "🌺", category: .flowering, waterEveryDays: 3, light: .fullSun),
+    Species(name: "Amaryllis", emoji: "🌺", category: .flowering, waterEveryDays: 7, light: .brightIndirect),
+    Species(name: "Calla Lily", emoji: "🪷", category: .flowering, waterEveryDays: 5, light: .brightIndirect),
+    Species(name: "Cyclamen", emoji: "🌸", category: .flowering, waterEveryDays: 5, light: .brightIndirect),
+    Species(name: "Lipstick Plant", emoji: "🌺", category: .flowering, waterEveryDays: 7, light: .brightIndirect),
+    Species(name: "Jasmine", emoji: "🌼", category: .flowering, waterEveryDays: 5, light: .brightIndirect),
+    Species(name: "Geranium", emoji: "🌸", category: .flowering, waterEveryDays: 5, light: .fullSun),
+    Species(name: "Lavender", emoji: "🪻", category: .flowering, waterEveryDays: 7, light: .fullSun),
+    Species(name: "Rose", emoji: "🌹", category: .flowering, waterEveryDays: 3, light: .fullSun),
+    Species(name: "Gerbera Daisy", emoji: "🌼", category: .flowering, waterEveryDays: 4, light: .fullSun),
+    Species(name: "Bougainvillea", emoji: "🌺", category: .flowering, waterEveryDays: 7, light: .fullSun),
 
     // Herbs & Edibles
     Species(name: "Basil", emoji: "🌿", category: .herb, waterEveryDays: 2, light: .fullSun),
@@ -177,15 +228,45 @@ let speciesCatalog: [Species] = [
     Species(name: "Tomato", emoji: "🍅", category: .herb, waterEveryDays: 2, light: .fullSun),
     Species(name: "Pepper", emoji: "🌶️", category: .herb, waterEveryDays: 3, light: .fullSun),
     Species(name: "Meyer Lemon Tree", emoji: "🍋", category: .herb, waterEveryDays: 7, light: .fullSun),
+    Species(name: "Oregano", emoji: "🌿", category: .herb, waterEveryDays: 4, light: .fullSun),
+    Species(name: "Sage", emoji: "🌿", category: .herb, waterEveryDays: 5, light: .fullSun),
+    Species(name: "Dill", emoji: "🌿", category: .herb, waterEveryDays: 3, light: .fullSun),
+    Species(name: "Lettuce", emoji: "🥬", category: .herb, waterEveryDays: 2, light: .fullSun),
+    Species(name: "Strawberry", emoji: "🍓", category: .herb, waterEveryDays: 2, light: .fullSun),
+    Species(name: "Cucumber", emoji: "🥒", category: .herb, waterEveryDays: 2, light: .fullSun),
+    Species(name: "Avocado Tree", emoji: "🥑", category: .herb, waterEveryDays: 7, light: .brightIndirect),
 
     // Carnivorous
     Species(name: "Venus Flytrap", emoji: "🪰", category: .carnivorous, waterEveryDays: 2, light: .fullSun),
     Species(name: "Pitcher Plant", emoji: "🪰", category: .carnivorous, waterEveryDays: 2, light: .fullSun),
     Species(name: "Sundew", emoji: "🪰", category: .carnivorous, waterEveryDays: 2, light: .fullSun),
+    Species(name: "Butterwort", emoji: "🪰", category: .carnivorous, waterEveryDays: 3, light: .brightIndirect),
 
     // Air Plants
     Species(name: "Air Plant (Tillandsia)", emoji: "🌱", category: .airPlant, waterEveryDays: 7, light: .brightIndirect),
+    Species(name: "Spanish Moss", emoji: "🌿", category: .airPlant, waterEveryDays: 4, light: .brightIndirect),
 ]
+
+// STEP 15: Light warnings. Only the extreme mismatches that can badly hurt a plant:
+// a sun-lover put in low light, or a shade plant put in direct sun.
+// (A plant listed as "Low light" can usually take some sun, e.g. Snake Plant, so
+// the shade plants are a separate, short list of ones whose leaves burn.)
+let burnsInDirectSun: Set<String> = [
+    "Calathea", "Prayer Plant (Maranta)", "Rattlesnake Plant", "Stromanthe Triostar", "Caladium",
+    "Boston Fern", "Bird's Nest Fern", "Maidenhair Fern", "Staghorn Fern", "Rabbit's Foot Fern",
+    "Nerve Plant (Fittonia)", "Peace Lily", "Chinese Evergreen", "Cast Iron Plant", "Parlor Palm",
+    "African Violet", "Orchid (Phalaenopsis)", "Lucky Bamboo",
+]
+
+func lightWarning(for species: Species, light: LightLevel) -> String? {
+    if species.light == .fullSun && light == .low {
+        return "\(species.name) needs lots of direct sun. In low light it will weaken and may not survive."
+    }
+    if burnsInDirectSun.contains(species.name) && light == .fullSun {
+        return "\(species.name) is a shade plant. Direct sun will scorch its leaves."
+    }
+    return nil
+}
 
 // STEP 4: Plant is now a SwiftData "@Model", which means it's saved in an on-device
 // database. Think of this class as a CREATE TABLE plants (...) statement:

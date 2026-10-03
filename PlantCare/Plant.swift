@@ -122,6 +122,7 @@ let speciesCatalog: [Species] = [
     Species(name: "Dieffenbachia", emoji: "🪴", category: .tropical, waterEveryDays: 7, light: .medium),
     Species(name: "Arrowhead Plant (Syngonium)", emoji: "🍃", category: .tropical, waterEveryDays: 7, light: .medium),
     Species(name: "Hoya", emoji: "🌸", category: .tropical, waterEveryDays: 10, light: .brightIndirect),
+    Species(name: "Chinese Money Plant", emoji: "🍃", category: .tropical, waterEveryDays: 7, light: .brightIndirect),
     Species(name: "Spider Plant", emoji: "🌱", category: .tropical, waterEveryDays: 7, light: .medium),
     Species(name: "Dracaena", emoji: "🌴", category: .tropical, waterEveryDays: 10, light: .medium),
     Species(name: "Money Tree", emoji: "🌳", category: .tropical, waterEveryDays: 10, light: .brightIndirect),
@@ -145,6 +146,8 @@ let speciesCatalog: [Species] = [
     Species(name: "Jade Plant", emoji: "🪴", category: .succulent, waterEveryDays: 14, light: .fullSun),
     Species(name: "Aloe Vera", emoji: "🌵", category: .succulent, waterEveryDays: 14, light: .fullSun),
     Species(name: "Haworthia", emoji: "🌵", category: .succulent, waterEveryDays: 14, light: .brightIndirect),
+    Species(name: "Aeonium", emoji: "🪷", category: .succulent, waterEveryDays: 10, light: .fullSun),
+    Species(name: "Golden Sedum", emoji: "🌼", category: .succulent, waterEveryDays: 14, light: .fullSun),
     Species(name: "Sempervivum (Hens & Chicks)", emoji: "🪷", category: .succulent, waterEveryDays: 14, light: .fullSun),
     Species(name: "Kalanchoe", emoji: "🌼", category: .succulent, waterEveryDays: 10, light: .brightIndirect),
     Species(name: "String of Pearls", emoji: "🫛", category: .succulent, waterEveryDays: 14, light: .brightIndirect),
@@ -251,20 +254,45 @@ final class Plant {
 }
 
 // Sample plants, added only the very first time the app opens.
+// These are Evander's own plants, so a fresh install starts with the real garden.
 func daysAgo(_ n: Int) -> Date {
     Calendar.current.date(byAdding: .day, value: -n, to: Date()) ?? Date()
 }
 
 func makeSamplePlants() -> [Plant] {
     [
-        Plant(nickname: "Monty", speciesName: "Monstera deliciosa", waterEveryDays: 7, lastWatered: daysAgo(8),
+        Plant(nickname: "Jake", speciesName: "Monstera deliciosa", waterEveryDays: 7, lastWatered: daysAgo(5),
               light: .brightIndirect, room: .livingRoom, potType: .plastic, hasDrainage: true,
-              soil: .aroid, fertilizes: true, fertilizeEveryWeeks: 4, notes: ""),
-        Plant(nickname: "", speciesName: "Snake Plant", waterEveryDays: 14, lastWatered: daysAgo(3),
-              light: .low, room: .bedroom, potType: .ceramic, hasDrainage: true,
-              soil: .cactus, fertilizes: false, fertilizeEveryWeeks: 8, notes: ""),
-        Plant(nickname: "", speciesName: "Echeveria", waterEveryDays: 10, lastWatered: daysAgo(12),
-              light: .fullSun, room: .kitchen, potType: .terracotta, hasDrainage: true,
-              soil: .cactus, fertilizes: false, fertilizeEveryWeeks: 8, notes: "South window"),
+              soil: .standard, fertilizes: true, fertilizeEveryWeeks: 4, notes: ""),
+        Plant(nickname: "Birdo", speciesName: "Bird of Paradise", waterEveryDays: 7, lastWatered: daysAgo(5),
+              light: .brightIndirect, room: .livingRoom, potType: .plastic, hasDrainage: true,
+              soil: .standard, fertilizes: true, fertilizeEveryWeeks: 4, notes: ""),
+        Plant(nickname: "", speciesName: "Snake Plant", waterEveryDays: 14, lastWatered: daysAgo(5),
+              light: .fullSun, room: .hallway, potType: .ceramic, hasDrainage: false,
+              soil: .standard, fertilizes: false, fertilizeEveryWeeks: 4, notes: ""),
+        Plant(nickname: "", speciesName: "Chinese Money Plant", waterEveryDays: 7, lastWatered: daysAgo(5),
+              light: .medium, room: .livingRoom, potType: .plastic, hasDrainage: true,
+              soil: .standard, fertilizes: false, fertilizeEveryWeeks: 4, notes: ""),
+        Plant(nickname: "", speciesName: "Dracaena", waterEveryDays: 10, lastWatered: daysAgo(5),
+              light: .medium, room: .hallway, potType: .plastic, hasDrainage: false,
+              soil: .standard, fertilizes: false, fertilizeEveryWeeks: 4, notes: "Massangeana"),
+        Plant(nickname: "Zebra Plant", speciesName: "Haworthia", waterEveryDays: 14, lastWatered: daysAgo(12),
+              light: .brightIndirect, room: .hallway, potType: .plastic, hasDrainage: true,
+              soil: .cactus, fertilizes: false, fertilizeEveryWeeks: 4, notes: ""),
+        Plant(nickname: "Marcel", speciesName: "Jade Plant", waterEveryDays: 14, lastWatered: daysAgo(12),
+              light: .brightIndirect, room: .hallway, potType: .plastic, hasDrainage: true,
+              soil: .cactus, fertilizes: false, fertilizeEveryWeeks: 4, notes: ""),
+        Plant(nickname: "African Spear Plant", speciesName: "Snake Plant", waterEveryDays: 14, lastWatered: daysAgo(8),
+              light: .brightIndirect, room: .hallway, potType: .ceramic, hasDrainage: true,
+              soil: .standard, fertilizes: false, fertilizeEveryWeeks: 4, notes: ""),
+        Plant(nickname: "", speciesName: "Aeonium", waterEveryDays: 10, lastWatered: daysAgo(5),
+              light: .brightIndirect, room: .hallway, potType: .plastic, hasDrainage: true,
+              soil: .cactus, fertilizes: false, fertilizeEveryWeeks: 4, notes: ""),
+        Plant(nickname: "", speciesName: "Golden Sedum", waterEveryDays: 14, lastWatered: daysAgo(5),
+              light: .brightIndirect, room: .livingRoom, potType: .plastic, hasDrainage: true,
+              soil: .cactus, fertilizes: false, fertilizeEveryWeeks: 4, notes: ""),
+        Plant(nickname: "", speciesName: "Hoya", waterEveryDays: 7, lastWatered: daysAgo(0),
+              light: .brightIndirect, room: .livingRoom, potType: .hanging, hasDrainage: false,
+              soil: .standard, fertilizes: true, fertilizeEveryWeeks: 4, notes: "Imbricata"),
     ]
 }

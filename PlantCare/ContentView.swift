@@ -215,7 +215,10 @@ struct ContentView: View {
             // First launch only: add the sample plants so the list isn't empty.
             .onAppear {
                 if !didAddSamples {
-                    makeSamplePlants().forEach { context.insert($0) }
+                    for plant in makeSamplePlants() {
+                        context.insert(plant)
+                        plant.water(on: plant.lastWatered)   // STEP 12: start each history with its last watering
+                    }
                     didAddSamples = true
                 }
             }

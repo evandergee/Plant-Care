@@ -248,12 +248,21 @@ struct PlantRow: View {
 
     var body: some View {
         HStack(spacing: compact ? 10 : 14) {
-            // Round badge with the plant's own emoji
-            Text(plant.emoji)
-                .font(compact ? .body : .title2)
-                .frame(width: compact ? 32 : 44, height: compact ? 32 : 44)
-                .background(Circle().fill(Color.leafSoft))
-                .accessibilityHidden(true)
+            // Round badge: your photo of the plant if there is one (STEP 16), otherwise its emoji
+            Group {
+                if let data = plant.photoData, let image = UIImage(data: data) {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFill()
+                } else {
+                    Text(plant.emoji)
+                        .font(compact ? .body : .title2)
+                }
+            }
+            .frame(width: compact ? 32 : 44, height: compact ? 32 : 44)
+            .background(Circle().fill(Color.leafSoft))
+            .clipShape(Circle())
+            .accessibilityHidden(true)
 
             if compact {
                 // STEP 14: compact style. Two short lines: the name, then

@@ -1,4 +1,5 @@
 import SwiftUI
+import PhotosUI
 
 // The plant form, used for BOTH adding a new plant and editing an existing one.
 // It opens as a sheet (a card that slides up) from the main list.
@@ -24,6 +25,10 @@ struct AddPlantView: View {
     @State private var fertilizeEveryWeeks: Int
     @State private var notes: String
     @State private var showingTypePicker = false   // STEP 15: is the plant type list open?
+    @State private var photoData: Data?            // STEP 16: the plant's photo
+    @State private var libraryItem: PhotosPickerItem?   // a photo picked from the library
+    @State private var showingCamera = false
+    @State private var showingPhoto = false        // full-screen viewer
 
     // Fill the form from the plant being edited, or with defaults for a new one.
     init(plant: Plant? = nil, onSave: @escaping (Plant) -> Void = { _ in }) {
@@ -41,6 +46,7 @@ struct AddPlantView: View {
         _fertilizes = State(initialValue: plant?.fertilizes ?? false)
         _fertilizeEveryWeeks = State(initialValue: plant?.fertilizeEveryWeeks ?? 4)
         _notes = State(initialValue: plant?.notes ?? "")
+        _photoData = State(initialValue: plant?.photoData)
     }
 
     // The catalog entry that matches the chosen species, if any.
@@ -67,6 +73,55 @@ struct AddPlantView: View {
     var body: some View {
         NavigationStack {
             Form {
+                // STEP 16: the plant's photo. It's first, so you can photograph a plant
+                // and identify it before choosing its type.
+                Section {
+                    if let photoData, let image = UIImage(data: photoData) {
+                        Button {
+                            showingPhoto = true
+                        } label: {
+                            Image(uiImage: image)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 220)
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("View photo")
+                    }
+                    // The camera only exists on a real iPhone, so the button is hidden in the simulator.
+                    if UIImagePickerController.isSourceTypeAvailable(.camera) {
+                        Button {
+                            showingCamera = true
+                        } label: {
+                            Label(photoData == nil ? "Take a photo" : "Take a new photo", systemImage: "camera")
+                        }
+                    }
+                    PhotosPicker(selection: $libraryItem, matching: .images) {
+                        Label(photoData == nil ? "Choose from library" : "Choose a different photo",
+                              systemImage: "photo.on.rectangle")
+                    }
+                    if photoData != nil {
+                        Button(role: .destructive) {
+                            photoData = nil
+                        } label: {
+                            Label("Remove photo", systemImage: "trash")
+                        }
+                    }
+                } header: {
+                    Text("Photo")
+                } footer: {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(photoData == nil
+                             ? "Not sure what it is? Add a photo, then tap it to have your iPhone identify the plant."
+                             : "Tap the photo to view it full screen and identify the plant.")
+                        // Privacy note: the photo is saved inside Gaia on this phone only.
+                        Label("Photos stay on this iPhone. Gaia never uploads or shares them.",
+                              systemImage: "lock.fill")
+                    }
+                }
+
                 Section {
                     TextField("Nickname (optional)", text: $nickname)
 
@@ -171,6 +226,24 @@ struct AddPlantView: View {
             .navigationDestination(isPresented: $showingTypePicker) {
                 SpeciesPicker(selection: $speciesName, isShown: $showingTypePicker)
             }
+            // STEP 16: when a library photo is picked, load it, shrink it and keep it.
+            .onChange(of: libraryItem) { _, item in
+                Task {
+                    if let data = try? await item?.loadTransferable(type: Data.self),
+                       let image = UIImage(data: data) {
+                        photoData = shrunkPhoto(image)
+                    }
+                }
+            }
+            .fullScreenCover(isPresented: $showingCamera) {
+                CameraPicker { image in photoData = shrunkPhoto(image) }
+                    .ignoresSafeArea()
+            }
+            .fullScreenCover(isPresented: $showingPhoto) {
+                if let photoData, let image = UIImage(data: photoData) {
+                    PhotoViewer(image: image)
+                }
+            }
             // When you pick a species, pre-fill its typical watering and light.
             .onChange(of: speciesName) { _, _ in
                 if let s = selectedSpecies {
@@ -216,9 +289,10 @@ struct AddPlantView: View {
             plant.fertilizes = fertilizes
             plant.fertilizeEveryWeeks = fertilizeEveryWeeks
             plant.notes = notes
+            plant.photoData = photoData
         } else {
             // Adding: build a new plant and hand it back to the list to insert.
-            onSave(Plant(
+            let newPlant = Plant(
                 nickname: cleanNickname,
                 speciesName: speciesName,
                 waterEveryDays: waterEveryDays,
@@ -231,7 +305,9 @@ struct AddPlantView: View {
                 fertilizes: fertilizes,
                 fertilizeEveryWeeks: fertilizeEveryWeeks,
                 notes: notes
-            ))
+            )
+            newPlant.photoData = photoData   // STEP 16
+            onSave(newPlant)
         }
     }
 }

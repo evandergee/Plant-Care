@@ -292,6 +292,11 @@ final class Plant {
     @Relationship(deleteRule: .cascade, inverse: \WateringEvent.plant)
     var waterings: [WateringEvent] = []
 
+    // STEP 16: your own photo of the plant (nil = no photo, show the emoji).
+    // .externalStorage keeps big data like photos in a separate file next to the
+    // database instead of inside the table, so the plant list stays fast.
+    @Attribute(.externalStorage) var photoData: Data? = nil
+
     init(nickname: String, speciesName: String, waterEveryDays: Int, lastWatered: Date,
          light: LightLevel, room: Room, potType: PotType, hasDrainage: Bool,
          soil: SoilType, fertilizes: Bool, fertilizeEveryWeeks: Int, notes: String) {

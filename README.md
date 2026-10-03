@@ -23,7 +23,8 @@ A simple iPhone app for tracking houseplants and when they need water. Built wit
 - A "See photos" link on the plant form opens Google Images for the chosen type, to help confirm what a plant is.
 - Track light, room, pot type, drainage, soil, fertilizing schedule, and notes.
 - Plants are saved on the device with SwiftData, so they persist between launches.
-- Each plant shows an emoji matched to its species.
+- Each plant shows an emoji matched to its species, or your own photo of it.
+- Take or choose a photo of each plant. Tap it to view it full screen, where iOS can identify the plant (Visual Look Up). Photos stay on the phone and are never uploaded.
 - Weather tab with a map, place search, and "use my location". The chosen place is remembered.
 - Weather tips for outdoor plants: frost risk, rain coming, or hot days ahead.
 - A watering reminder notification at 9 AM on the day each plant is due.
@@ -38,6 +39,7 @@ A simple iPhone app for tracking houseplants and when they need water. Built wit
 | `ContentView.swift` | Main plant list screen |
 | `AddPlantView.swift` | Form for adding and editing plants |
 | `SpeciesPicker.swift` | Searchable list for choosing a plant type |
+| `PlantPhotos.swift` | Camera, photo shrinking, and the full-screen photo viewer with plant identification |
 | `WeatherView.swift` | Weather tab: forecast, map, search, and location |
 | `WateringTips.swift` | Rules that turn the forecast into tips for outdoor plants |
 | `WateringAlerts.swift` | Schedules the watering reminder notifications |
@@ -61,7 +63,6 @@ Open `PlantCare.xcodeproj` in Xcode (iOS 27 SDK), choose an iPhone simulator, an
 ## Ideas for next steps
 
 - Fertilizing tracker
-- Plant photos
 
 ## License
 

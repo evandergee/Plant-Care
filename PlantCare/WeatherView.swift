@@ -76,6 +76,7 @@ struct WeatherView: View {
     @State private var mapPosition = mapArea(around: stLouis)
 
     @State private var searchText = ""
+    @State private var isSearching = false   // true while the search box is active
     @State private var searchMessage: String?
 
     var body: some View {
@@ -151,8 +152,12 @@ struct WeatherView: View {
         .scrollContentBackground(.hidden)   // same green garden look as the plant list
         .background(GardenBackground())
         .navigationTitle(placeName)
-        // Adds a search box under the title.
-        .searchable(text: $searchText, prompt: "Search a city or zip code")
+        // Adds a search box under the title. ".always" keeps it on screen; by default
+        // iOS hides it under the title until you pull the screen down.
+        .searchable(text: $searchText,
+                    isPresented: $isSearching,
+                    placement: .navigationBarDrawer(displayMode: .always),
+                    prompt: "Search a city or zip code")
         .onSubmit(of: .search) {
             Task { await search() }
         }
@@ -223,6 +228,8 @@ struct WeatherView: View {
             placeName = match.name ?? searchText
             mapPosition = mapArea(around: place)
             searchMessage = nil
+            searchText = ""        // clear the box so it's ready for the next search
+            isSearching = false    // leave search mode so the new city's name shows as the title
         } catch {
             searchMessage = "No place found for \"\(searchText)\"."
         }

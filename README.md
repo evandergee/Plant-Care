@@ -1,6 +1,6 @@
 # Project DeTerra 🌱
 
-*DeTerra is Latin for "from the earth".*
+*De Terra is Latin for "from the earth".*
 
 A simple iPhone app for tracking houseplants and when they need water. Built with SwiftUI and SwiftData.
 

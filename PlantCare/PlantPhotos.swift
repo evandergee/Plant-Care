@@ -74,7 +74,7 @@ struct LookUpImageView: UIViewRepresentable {
         view.addInteraction(interaction)
 
         // Ask iOS to look for things it can identify. This is Apple's built-in feature,
-        // the same one the Photos app uses; Gaia itself never sends the photo anywhere.
+        // the same one the Photos app uses; DeTerra itself never sends the photo anywhere.
         Task {
             guard ImageAnalyzer.isSupported else { return }   // false in the simulator
             let configuration = ImageAnalyzer.Configuration([.visualLookUp])

@@ -146,7 +146,7 @@ struct ContentView: View {
                     if !plants.isEmpty {
                         Label(alertsAllowed
                               ? "Each plant has its own schedule. You'll get a reminder at 9 AM on the day it's due. Tap a plant to change how often."
-                              : "Reminders are off. Turn on notifications for Project Gaia in Settings to get alerts when plants are due.",
+                              : "Reminders are off. Turn on notifications for Project DeTerra in Settings to get alerts when plants are due.",
                               systemImage: alertsAllowed ? "bell.fill" : "bell.slash.fill")
                             .font(.footnote)
                             .foregroundStyle(.secondary)

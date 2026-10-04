@@ -187,7 +187,7 @@ struct WeatherView: View {
                     return   // one reading is enough; stop listening
                 }
                 if update.authorizationDenied {
-                    searchMessage = "Location is off for Project Gaia. You can turn it on in Settings."
+                    searchMessage = "Location is off for Project DeTerra. You can turn it on in Settings."
                     return
                 }
             }

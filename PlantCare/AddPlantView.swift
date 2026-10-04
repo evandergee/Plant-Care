@@ -116,8 +116,8 @@ struct AddPlantView: View {
                         Text(photoData == nil
                              ? "Not sure what it is? Add a photo, then tap it to have your iPhone identify the plant."
                              : "Tap the photo to view it full screen and identify the plant.")
-                        // Privacy note: the photo is saved inside Gaia on this phone only.
-                        Label("Photos stay on this iPhone. Gaia never uploads or shares them.",
+                        // Privacy note: the photo is saved inside DeTerra on this phone only.
+                        Label("Photos stay on this iPhone. DeTerra never uploads or shares them.",
                               systemImage: "lock.fill")
                     }
                 }

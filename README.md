@@ -7,10 +7,11 @@ A simple iPhone app for tracking houseplants and when they need water. Built wit
 ## Screenshots
 
 <p>
-  <img src="screenshots/plants.png" width="200" alt="Plant list with watering status and current weather">
-  <img src="screenshots/edit-plant.png" width="200" alt="Form for editing a plant">
-  <img src="screenshots/plant-types.png" width="200" alt="Plant type picker grouped by category">
-  <img src="screenshots/weather.png" width="200" alt="Weather tab with a map and 7-day forecast">
+  <img src="screenshots/plants.png" width="160" alt="My Plants list grouped by due date">
+  <img src="screenshots/add-plant-photo.png" width="160" alt="Add Plant form with a photo and privacy note">
+  <img src="screenshots/plant-search.png" width="160" alt="Searching the plant type list for ferns">
+  <img src="screenshots/plant-health.png" width="160" alt="Plant Health results for yellow leaves">
+  <img src="screenshots/weather.png" width="160" alt="Weather tab with map and 7-day forecast">
 </p>
 
 ## Features

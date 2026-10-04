@@ -165,6 +165,19 @@ struct AddPlantView: View {
                     }
                 }
 
+                // STEP 18: symptom checker for this plant (only when editing a saved plant).
+                if let plant {
+                    Section {
+                        NavigationLink {
+                            PlantHealthView(plant: plant)
+                        } label: {
+                            Label("Something wrong? Check symptoms", systemImage: "stethoscope")
+                        }
+                    } header: {
+                        Text("Health")
+                    }
+                }
+
                 Section {
                     Stepper("Every \(waterEveryDays) day\(waterEveryDays == 1 ? "" : "s")",
                             value: $waterEveryDays, in: 1...60)

@@ -214,6 +214,8 @@ struct ContentView: View {
             }
             // First launch only: add the sample plants so the list isn't empty.
             .onAppear {
+                // STEP 17: move any photo saved before the timeline existed into it.
+                plants.forEach { $0.moveOldPhotoIntoTimeline() }
                 if !didAddSamples {
                     for plant in makeSamplePlants() {
                         context.insert(plant)
@@ -250,7 +252,7 @@ struct PlantRow: View {
         HStack(spacing: compact ? 10 : 14) {
             // Round badge: your photo of the plant if there is one (STEP 16), otherwise its emoji
             Group {
-                if let data = plant.photoData, let image = UIImage(data: data) {
+                if let data = plant.latestPhoto?.data, let image = UIImage(data: data) {
                     Image(uiImage: image)
                         .resizable()
                         .scaledToFill()
@@ -337,5 +339,5 @@ struct PlantRow: View {
 
 #Preview {
     ContentView()
-        .modelContainer(for: [Plant.self, WateringEvent.self], inMemory: true)
+        .modelContainer(for: [Plant.self, WateringEvent.self, PlantPhoto.self], inMemory: true)
 }

@@ -16,6 +16,7 @@ import SwiftData
         }
         // STEP 4: Create the on-device database and share it with every screen.
         // STEP 12 adds a second table, WateringEvent, for the watering history.
-        .modelContainer(for: [Plant.self, WateringEvent.self])
+        // STEP 17 adds PlantPhoto, for the growth timeline.
+        .modelContainer(for: [Plant.self, WateringEvent.self, PlantPhoto.self])
     }
 }

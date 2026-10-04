@@ -292,10 +292,13 @@ final class Plant {
     @Relationship(deleteRule: .cascade, inverse: \WateringEvent.plant)
     var waterings: [WateringEvent] = []
 
-    // STEP 16: your own photo of the plant (nil = no photo, show the emoji).
-    // .externalStorage keeps big data like photos in a separate file next to the
-    // database instead of inside the table, so the plant list stays fast.
+    // STEP 16: the single photo from before the growth timeline. Kept only so old
+    // photos can be moved into the timeline (see moveOldPhotoIntoTimeline).
     @Attribute(.externalStorage) var photoData: Data? = nil
+
+    // STEP 17: every photo of this plant, for the growth timeline (see PlantPhotos.swift).
+    @Relationship(deleteRule: .cascade, inverse: \PlantPhoto.plant)
+    var photos: [PlantPhoto] = []
 
     init(nickname: String, speciesName: String, waterEveryDays: Int, lastWatered: Date,
          light: LightLevel, room: Room, potType: PotType, hasDrainage: Bool,

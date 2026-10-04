@@ -25,7 +25,7 @@ struct AddPlantView: View {
     @State private var fertilizeEveryWeeks: Int
     @State private var notes: String
     @State private var showingTypePicker = false   // STEP 15: is the plant type list open?
-    @State private var photoData: Data?            // STEP 16: the plant's photo
+    @State private var newPhoto: Data?             // STEP 17: a photo added in this visit, saved on Save
     @State private var libraryItem: PhotosPickerItem?   // a photo picked from the library
     @State private var showingCamera = false
     @State private var showingPhoto = false        // full-screen viewer
@@ -46,7 +46,6 @@ struct AddPlantView: View {
         _fertilizes = State(initialValue: plant?.fertilizes ?? false)
         _fertilizeEveryWeeks = State(initialValue: plant?.fertilizeEveryWeeks ?? 4)
         _notes = State(initialValue: plant?.notes ?? "")
-        _photoData = State(initialValue: plant?.photoData)
     }
 
     // The catalog entry that matches the chosen species, if any.
@@ -65,6 +64,9 @@ struct AddPlantView: View {
         return link?.url
     }
 
+    // The photo shown at the top of the form: a just-added one, otherwise the latest saved one.
+    private var shownPhoto: Data? { newPhoto ?? plant?.latestPhoto?.data }
+
     // You need either a nickname or a species before you can save.
     private var canSave: Bool {
         !nickname.trimmingCharacters(in: .whitespaces).isEmpty || !speciesName.isEmpty
@@ -76,7 +78,7 @@ struct AddPlantView: View {
                 // STEP 16: the plant's photo. It's first, so you can photograph a plant
                 // and identify it before choosing its type.
                 Section {
-                    if let photoData, let image = UIImage(data: photoData) {
+                    if let shownPhoto, let image = UIImage(data: shownPhoto) {
                         Button {
                             showingPhoto = true
                         } label: {
@@ -95,27 +97,36 @@ struct AddPlantView: View {
                         Button {
                             showingCamera = true
                         } label: {
-                            Label(photoData == nil ? "Take a photo" : "Take a new photo", systemImage: "camera")
+                            Label(shownPhoto == nil ? "Take a photo" : "Take a new photo", systemImage: "camera")
                         }
                     }
                     PhotosPicker(selection: $libraryItem, matching: .images) {
-                        Label(photoData == nil ? "Choose from library" : "Choose a different photo",
+                        Label(shownPhoto == nil ? "Choose from library" : "Add a photo from library",
                               systemImage: "photo.on.rectangle")
                     }
-                    if photoData != nil {
+                    // A photo added in this visit can be taken back before saving.
+                    if newPhoto != nil {
                         Button(role: .destructive) {
-                            photoData = nil
+                            newPhoto = nil
                         } label: {
-                            Label("Remove photo", systemImage: "trash")
+                            Label("Remove new photo", systemImage: "trash")
+                        }
+                    }
+                    // STEP 17: every saved photo, with "Then and Now" (only when editing).
+                    if let plant, !plant.photos.isEmpty {
+                        NavigationLink {
+                            GrowthTimelineView(plant: plant)
+                        } label: {
+                            LabeledContent("Growth timeline", value: "\(plant.photos.count)")
                         }
                     }
                 } header: {
                     Text("Photo")
                 } footer: {
                     VStack(alignment: .leading, spacing: 6) {
-                        Text(photoData == nil
+                        Text(shownPhoto == nil
                              ? "Not sure what it is? Add a photo, then tap it to have your iPhone identify the plant."
-                             : "Tap the photo to view it full screen and identify the plant.")
+                             : "Tap the photo to view it full screen and identify the plant. Add a new photo every month or so to see how much your plant has grown.")
                         // Privacy note: the photo is saved inside DeTerra on this phone only.
                         Label("Photos stay on this iPhone. DeTerra never uploads or shares them.",
                               systemImage: "lock.fill")
@@ -231,18 +242,18 @@ struct AddPlantView: View {
                 Task {
                     if let data = try? await item?.loadTransferable(type: Data.self),
                        let image = UIImage(data: data) {
-                        photoData = shrunkPhoto(image)
+                        newPhoto = shrunkPhoto(image)
                     }
                     // Clear the pick, so choosing the same photo again (after removing it) still works.
                     libraryItem = nil
                 }
             }
             .fullScreenCover(isPresented: $showingCamera) {
-                CameraPicker { image in photoData = shrunkPhoto(image) }
+                CameraPicker { image in newPhoto = shrunkPhoto(image) }
                     .ignoresSafeArea()
             }
             .fullScreenCover(isPresented: $showingPhoto) {
-                if let photoData, let image = UIImage(data: photoData) {
+                if let shownPhoto, let image = UIImage(data: shownPhoto) {
                     PhotoViewer(image: image)
                 }
             }
@@ -291,7 +302,7 @@ struct AddPlantView: View {
             plant.fertilizes = fertilizes
             plant.fertilizeEveryWeeks = fertilizeEveryWeeks
             plant.notes = notes
-            plant.photoData = photoData
+            if let newPhoto { plant.addPhoto(newPhoto) }   // STEP 17: added to the timeline
         } else {
             // Adding: build a new plant and hand it back to the list to insert.
             let newPlant = Plant(
@@ -308,7 +319,7 @@ struct AddPlantView: View {
                 fertilizeEveryWeeks: fertilizeEveryWeeks,
                 notes: notes
             )
-            newPlant.photoData = photoData   // STEP 16
+            if let newPhoto { newPlant.addPhoto(newPhoto) }   // STEP 17: first photo in the timeline
             onSave(newPlant)
         }
     }

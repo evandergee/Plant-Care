@@ -82,12 +82,12 @@ struct AddPlantView: View {
                         Button {
                             showingPhoto = true
                         } label: {
+                            // Show the WHOLE photo (fit, not crop), so the full plant is visible.
                             Image(uiImage: image)
                                 .resizable()
-                                .scaledToFill()
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 220)
+                                .scaledToFit()
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
+                                .frame(maxWidth: .infinity, maxHeight: 320)
                         }
                         .buttonStyle(.plain)
                         .accessibilityLabel("View photo")

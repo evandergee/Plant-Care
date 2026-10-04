@@ -8,7 +8,7 @@ A simple iPhone app for tracking houseplants and when they need water. Built wit
 
 <p>
   <img src="screenshots/plants.png" width="160" alt="My Plants list grouped by due date">
-  <img src="screenshots/add-plant-photo.png" width="160" alt="Add Plant form with a photo and privacy note">
+  <img src="screenshots/add-plant-photo.png" width="160" alt="Edit Plant form showing a whole Monstera photo and the privacy note">
   <img src="screenshots/plant-search.png" width="160" alt="Searching the plant type list for ferns">
   <img src="screenshots/plant-health.png" width="160" alt="Plant Health results for yellow leaves">
   <img src="screenshots/weather.png" width="160" alt="Weather tab with map and 7-day forecast">

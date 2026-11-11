@@ -1,5 +1,7 @@
 # Project DeTerra 🌱
 
+> Built by Evan Gilb, with Claude as an AI coding partner.
+
 *De Terra is Latin for "from the earth".*
 
 A simple iPhone app for tracking houseplants and when they need water. Built with SwiftUI and SwiftData.
